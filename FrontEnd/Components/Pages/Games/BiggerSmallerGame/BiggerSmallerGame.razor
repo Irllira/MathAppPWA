@@ -1,0 +1,200 @@
+﻿@page "/BiggerSmaller/{type}"
+@using DTO.DTOs
+@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveServer
+@inherits CountingUpDownBase;
+@inject NavigationManager NavManager
+
+
+<PageTitle>Większe Mniejsze</PageTitle>
+
+
+@if(ready==true)
+{
+    <h1 style="text-align:center">Wybierz Poprawną Liczbę </h1>
+    <p style="height:10px"></p>
+    Random rnd = new Random();
+    int correct = rnd.Next(0,4);
+
+    if(type == "fractions")
+    {
+        <h2><b> 
+            <div class="frac"> 
+                <span>@excerciseNumber</span>  
+                <span class="symbol">/</span>
+                <span class="bottom"> @excerciseNumberDen </span>
+            </div>
+            @excercise
+            </b>
+        </h2> 
+       
+        <p style="height:10px"></p>
+        
+        for (int i=0;i<4;i++)
+        {
+            if (i == correct)
+            {
+                <label style="padding-left:10px; padding-bottom:5px">
+                <button class="gamebtns" @onclick="GoodNumber">
+                    <div class="frac">
+                        <span>@correctNumber</span>
+                        <span class="symbol">/</span>
+                        <span class="bottom"> @correctNumberDen </span>
+                    </div>
+                </button> 
+                </label>
+            }else
+            {
+                <label style="padding-left:10px; padding-bottom:5px">
+                    <button class="gamebtns" @onclick="WrongNumber">
+                        <div class="frac">
+                            <span>@wrongNumbers[i]</span>
+                            <span class="symbol">/</span>
+                            <span class="bottom"> @wrongNumbersDen[i] </span>
+                        </div>
+                    </button> 
+                </label>
+            }
+        }
+    }else{
+
+        <h2><b> @excercise </b></h2>
+        <p style="height:10px"></p>
+        for (int i=0;i<4;i++)
+        {
+            if (i == correct)
+            {
+                <label style="padding-left:10px; padding-bottom:5px">
+                    <button class="gamebtns" @onclick="GoodNumber">@correctNumber</button>
+                </label>
+            }else
+            {
+                <label style="padding-left:10px; padding-bottom:5px">
+                    <button class="gamebtns" @onclick="WrongNumber">@wrongNumbers[i]</button> 
+                </label>
+            }
+        }
+    }
+    <p style="height:5px"></p>
+    <p>@message</p>
+    <p style="height:5px"></p>
+    <p>Wynik: @good / @all </p>
+}else
+{
+        <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
+        <p style="height:10px"></p>
+        <h4>Twój wynik to: @good / @all </h4>
+
+        <p style="height:20px"></p>
+        <button class="backbtn" @onclick="GoBack">Cofnij</button>
+}
+
+
+
+<!--<p>@theEnd</p>-->
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    int good = 0;
+    int all = 0;
+    private string message = "";
+    private string theEnd="";
+
+    private async Task GoodNumber()
+    {
+        good++;
+        all++;
+        message = "Dobrze!";
+        this.StateHasChanged();
+        if(all>=10)
+        {
+            theEnd = "Koniec gry!";
+            ready = false;
+            await Task.Delay(1500);
+            await UpdateUserScore();
+            message = "";
+            this.StateHasChanged();
+            return;
+        }
+
+        await Task.Delay(1500);
+        PrepareNewGame();
+        message = "";
+
+        this.StateHasChanged();
+
+    }
+    private async Task WrongNumber()
+    {
+        all++;
+        message = "Zła Odpowiedź! Spróbuj ponownie";
+        this.StateHasChanged();
+
+        await Task.Delay(1500);
+        //   PrepareNewGame();
+        message = "";
+        //  this.StateHasChanged();
+    }
+
+    private async Task UpdateUserScore()
+    {
+        string unit = "";
+        switch (type)
+        {
+            case "natural":
+                unit ="Liczby Naturalne";
+
+                break;
+            case "minus":
+                unit ="Liczby Całkowite";
+                break;
+
+            default:
+                unit = "Podstawy Liczb";
+                break;
+        }
+
+
+        var authenticationState = await authenticationStateTask;
+        string username = authenticationState.User.Identity.Name;
+        if (username != null)
+        {
+            var progrss = await userProgressService.GetProgressByAll(username, unit, "Gry");
+            if (progrss != null)
+            {
+                good += progrss.good;
+                all += progrss.all;
+                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = unit, all = all, good = good };
+                await userProgressService.UpdateProgress(updated);
+
+            }
+            else
+            {
+                await userProgressService.AddProgressByName(username, unit, "Gry", good, all);
+            }
+
+        }
+    }
+
+
+    private void GoBack()
+    {
+        switch(type)
+        {       
+            case "natural":
+                NavManager.NavigateTo("ChooseGame/uname/Liczby Naturalne");
+
+                break;
+            case "minus":
+                NavManager.NavigateTo("ChooseGame/uname/Liczby Całkowite");
+                break;
+
+            default:
+                NavManager.NavigateTo("ChooseGame/uname/Podstawy Liczb");
+                break;
+        }
+
+    }
+
+}

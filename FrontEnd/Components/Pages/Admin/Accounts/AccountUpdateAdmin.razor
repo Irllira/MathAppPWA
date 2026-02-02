@@ -1,0 +1,87 @@
+﻿@using DTO.DTOs
+@inherits AccountsBase;
+
+<p></p>
+<h4>Edytuj Użytkownika</h4>
+<p>
+    <label>Nazwa: @account.Username </label>
+</p>
+
+<p>
+    <label>Email: @account.Email</label>
+</p>
+
+<p>
+    <label>Rola: </label>
+    <InputSelect @bind-Value="role" , @onchange="@((ChangeEventArgs __e) => role = __e?.Value?.ToString())">
+        @foreach (var role in Enum.GetValues(typeof(Roles)))
+        {
+            <option value="@role">@role</option>
+        }
+    </InputSelect>
+</p>
+
+<p>
+    <label>Aktywne: </label>
+    <InputSelect @bind-Value="active" , @onchange="@((ChangeEventArgs __e) => active = __e?.Value?.ToString())">
+        @foreach (var active in Enum.GetValues(typeof(Active)))
+        {
+            <option value="@active">@active</option>
+        }
+    </InputSelect>
+</p>
+
+<button class="confbtn" @onclick="Confirm">Potwierdź</button>
+<label> &nbsp &nbsp </label>
+<button class="backbtn" @onclick="GoBack">Anuluj</button>
+<p></p>
+<label> @message</label>
+
+
+
+@code {
+    [Parameter]
+    public EventCallback<string> OnClickCallback { get; set; }
+
+    [Parameter]
+    public required AccountsDTO account { get; set; }
+
+    string message = "";
+    public string active="";
+    public string role="";
+
+    enum Roles
+    {
+        Admin,
+        User
+    }
+    enum Active
+    {
+        True,
+        False
+    }
+
+    private async Task Confirm()
+    {
+        //active = account.isActive.ToString();
+       // role = account.Role;
+        if(role ==null ||role ==""|| active=="" ||active == null)
+        {
+            message = "Wybierz role oraz czy konto jest aktywne";
+            return;
+        }
+        message = "Konto edytowane";
+        bool act = false;
+        if(active=="True")
+        {
+            act = true;
+        }
+        await EditAccount(account.Username, account.Email, role,act);
+        await GoBack();
+    }
+    private async Task GoBack()
+    {
+        await OnClickCallback.InvokeAsync();
+    }
+   
+}

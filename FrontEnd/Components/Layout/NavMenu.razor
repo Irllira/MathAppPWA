@@ -1,0 +1,62 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+
+<div class="top-row ps-3 navbar navbar-dark" style="color:cadetblue">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Nauka Matematyki</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()" style="color:cadetblue">
+    <nav class="flex-column">
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Strona Główna
+            </NavLink>
+        </div>
+
+        <AuthorizeView Roles="User, Admin">
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="UserMainPage" Match="NavLinkMatch.All">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Konto
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+      
+        <AuthorizeView Roles="Admin">
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="/adminPage" Match="NavLinkMatch.All">
+                        <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Menu Admina
+                    </NavLink>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+
+        
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/ChooseGame/elvl/Klasy Jeden-Trzy">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Klasy I-III
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/ChooseGame/elvl/Klasy Cztery-Sześć">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Klasy IV-VI
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/ChooseGame/elvl/Klasy Siedem-Osiem">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Klasy IV-VI
+            </NavLink>
+        </div>
+
+    </nav>
+</div>
+

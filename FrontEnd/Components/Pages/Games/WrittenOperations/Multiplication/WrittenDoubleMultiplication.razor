@@ -1,0 +1,269 @@
+﻿@page "/WrittenDoubleMulti"
+@using DTO.DTOs
+@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveServer
+@inherits WrittenDoubleMultiplicationBase;
+@inject NavigationManager NavManager
+
+<PageTitle>Mnożenie Pisemne</PageTitle>
+
+<h1>Podaj Poprawną Liczbę </h1>
+
+
+@if (ready == true)
+{
+    <p></p> <p></p>
+    <p style="padding-left:53px">
+        @for (int i= 0; i<help.Count;i++)
+        {
+            var helpnum = i;
+            <input type="text" style="width:23px; height:30px; font-size:15px" maxlength="2" @bind-value="@help[helpnum]" @onkeydown="@Enter">
+            <label>&nbsp;</label>
+
+        }
+  
+    </p>
+
+    <p style="font-size:25px; padding-left:95px"><b> @exerciseNumber1 </b></p>    
+    
+    <p style="font-size:25px; padding-left:60px"><b> * &nbsp;  @exerciseNumber2 </b></p>            
+        
+
+    <hr style="height:3px;width:20%">
+    <p></p>
+    
+    <p style="padding-left:53px">
+        @for(int i=0;i<numOne.Count();i++)
+        {
+            var num = i;
+            <input type="text" style="width:23px; height:30px; font-size:25px" maxlength="1" @bind-value="numOne[num]"> 
+            <label>&nbsp;</label>           
+        }
+      
+    </p>
+    <p style="padding-left:1px">
+        <label style="font-size:25px">+</label> 
+        @for (int i = 0; i < numOne.Count(); i++)
+        {
+            var num = i;
+            <input type="text" style="width:23px; height:30px; font-size:25px" maxlength="1" @bind-value="numTwo[num]">
+            <label>&nbsp;</label>
+        }
+       
+    </p>
+    
+    <hr style="height:5px;border-width:0;color:black;background-color:black; width:20%">
+    <p>
+    <label>&nbsp;&nbsp;&nbsp;</label>
+    @for (int i = 0; i < finalAnwser.Count(); i++)
+    {
+        var num = i;
+        <input type="text" style="width:23px; height:30px; font-size:25px" maxlength="1" @bind-value="finalAnwser[num]" @onkeydown="@Enter">
+        <label>&nbsp;</label>
+    }
+    </p>
+
+    <button class="confbtn" @onclick="Confirm">Potwierdź</button>
+    <p>@message</p>
+    foreach(var h in hint)
+    {
+    <p>@h</p>  
+    }
+    <p></p>
+
+    <p>Wynik: @good / @all </p>
+}
+else
+{
+    <p><b>Koniec Gry!</b></p>
+    <p>Twój wynik to: @good / @all </p>
+    
+    <p style="height:20px"></p>
+    <button class="backbtn" @onclick="GoBack">Cofnij</button>
+}
+
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+
+    int good = 0;
+    int all = 0;
+    private string message = "";
+    private string theEnd = "";
+    private string UserAnwser = "";
+
+    private List<string> numOne = new List<string>() { "", "", "" };
+    private List<string> numTwo = new List<string>() { "", "", "" };
+
+    private List<string> finalAnwser = new List<string>() { "", "", "", "" };
+
+
+    private List<string> help = new List<string>(){"",""};
+    private List<string> hint =new List<string>(){"",""};
+
+
+    private async Task Confirm()
+    {
+        if (finalAnwser[0] == "0")
+        {
+            finalAnwser[0]= "";            
+        }
+        if (finalAnwser[1] == "0" && finalAnwser[0] == "")
+        {
+            finalAnwser[1] = "";
+        }
+        if (finalAnwser[2] == "0" && finalAnwser[0] == ""&& finalAnwser[1] == "")
+        {
+            finalAnwser[2] = "";
+        }
+        await Task.Delay(100);
+        UserAnwser = finalAnwser[0] + finalAnwser[1] + finalAnwser[2] +finalAnwser[3];
+        if (UserAnwser == correctNumber.ToString())
+        {
+            await GoodNumber();
+        }
+        else
+        {
+            await WrongNumber();
+        }
+    }
+
+    private async Task GoodNumber()
+    {
+        good++;
+        all++;
+        message = "Dobrze!";
+        this.StateHasChanged();
+        if (all >= 10)
+        {
+            theEnd = "Koniec gry!";
+            ready = false;
+            await Task.Delay(1500);
+            await UpdateUserScore();
+            message = "";
+            this.StateHasChanged();
+            return;
+        }
+
+        help = new List<string> { "", "" };
+        hint = new List<string> { "", "" };
+
+        await Task.Delay(1500);
+        PrepareNewGame();
+        message = "";
+        UserAnwser = "";
+        finalAnwser = new List<string> { "", "", "", "" };
+        numOne = new List<string>() { "", "", "" };
+        numTwo = new List<string>() { "", "", "" };
+        
+        this.StateHasChanged();
+    }
+    private async Task WrongNumber()
+    {
+        checkHints();
+
+        all++;
+        message = "Zła Odpowiedź! Spróbuj ponownie";
+        this.StateHasChanged();
+
+        await Task.Delay(1500);
+        //   PrepareNewGame();
+        message = "";
+        //  this.StateHasChanged();
+    }
+
+    public async Task Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            await Task.Delay(500);
+            await Confirm();
+        }
+    }
+
+    private void checkHints()
+    {
+        if(numOne[0]=="0")
+        {
+            numOne[0] = "";
+        }
+        if (numOne[1] == "0" && numOne[0] == "")
+        {
+            numOne[1] = "";
+        }
+
+
+        if(numTwo[0]=="0")
+        {
+            numTwo[0] = "";
+        }
+        if (numTwo[1] == "0" && numTwo[0] == "")
+        {
+            numTwo[1] = "";
+        }
+
+
+        if (numOne[0] + numOne[1] + numOne[2] != "")
+            if (numOne[0] + numOne[1] + numOne[2] == corrNum1.ToString())
+            {
+                hint[0] = "Pierwsza liczba dobrze wpisana!";
+            }
+            else
+            {
+                if (hint[0] == "")
+                {
+                    hint[0] = "Pierwsza liczba niepoprawna";
+                }
+                else
+                {
+                    hint[0] = "Pierwsza liczba to " + corrNum1 + ", ponieważ " + exNum1 + " * " + exNum2 % 10 + " = " + corrNum1;
+                }
+            }
+
+        if (numTwo[0] + numTwo[1] + numTwo[2] != "")
+            if (numTwo[0] + numTwo[1] + numTwo[2] == corrNum2.ToString())
+            {
+                hint[1] = "Druga liczba dobrze wpisana!";
+            }
+            else
+            {
+                if (hint[1] == "")
+                {
+                    hint[1] = "Druga liczba niepoprawna";
+                }
+                else
+                {
+                    hint[1] = "Druga liczba to " + corrNum2 + ", ponieważ " + exNum1 + " * " + (exNum2 - exNum2 % 10) / 10 + " = " + corrNum2;
+                }
+            }
+    }
+      private async Task UpdateUserScore()
+    {
+        var authenticationState = await authenticationStateTask;
+        string username = authenticationState.User.Identity.Name;
+        if (username != null)
+        {
+            var progrss = await userProgressService.GetProgressByAll(username, "Działania Pisemne", "Gry");
+            if (progrss != null)
+            {
+                good += progrss.good;
+                all += progrss.all;
+                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Działania Pisemne", all = all, good = good };
+                await userProgressService.UpdateProgress(updated);
+
+            }
+            else
+            {
+                await userProgressService.AddProgressByName(username, "Działania Pisemne", "Gry", good, all);
+            }
+
+        }
+    }
+
+    private void GoBack()
+    {
+        NavManager.NavigateTo("ChooseGame/uname/Działania Pisemne");
+    }
+}

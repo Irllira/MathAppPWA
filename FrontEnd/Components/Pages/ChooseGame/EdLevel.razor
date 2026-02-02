@@ -1,0 +1,34 @@
+﻿@using DTO.DTOs
+@inherits edLevelBase
+@rendermode InteractiveServer
+
+
+<h3 style="color:darkblue; text-align:center">Wybierz Poziom Nauczania</h3>
+<p style="height:20px"></p>
+
+@if (edLevels != null && edLevels.Count()!=0)
+{
+    @for (int i = 0; i < edLevels.Count(); i++)
+    {
+        var ed = edLevels.ToArray()[i];
+        var buttonNumber = i;
+        var name = ed.name;
+        <label style="padding-left:20px; padding-top:10px">
+            <button class="mainbtns" @onclick="@(e => Confirm(e, buttonNumber, ed))" name="@buttonNumber">@name</button>   &nbsp &nbsp &nbsp &nbsp &nbsp
+        </label>
+    }
+
+}else
+{
+    <label><i>Ładowanie...</i></label>
+}
+
+@code {
+    [Parameter]
+    public EventCallback<EducationLevelDTO> educationLevel { get; set; }
+
+    void Confirm(MouseEventArgs e, int buttonNumber, EducationLevelDTO edlvl)
+    {
+        educationLevel.InvokeAsync(edlvl);    
+    }
+}

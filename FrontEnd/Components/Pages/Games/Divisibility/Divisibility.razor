@@ -1,0 +1,215 @@
+﻿@page "/Divisibility"
+@using DTO.DTOs
+@using Microsoft.AspNetCore.Components.Authorization
+@rendermode InteractiveServer
+@inherits DivisibilityBase;
+@inject NavigationManager NavManager
+
+<PageTitle>Większe Mniejsze</PageTitle>
+
+
+@if(ready==true)
+{
+    <h1 style="text-align:center"> Zaznacz poprawne odpowiedzi </h1>
+    <p style="height:10px"></p>
+
+
+    <h2><b> Liczba @excerciseNumber jest podzielna przez: </b></h2>
+    <p style="height:5px"></p>
+
+    for(int j= 0;j<allAnswers.Count();j++)
+    {
+        var buttonNumber = j;
+        <button class="@bgstyle[buttonNumber]" @onclick="@(e => ButtonClicked(e, allAnswers[buttonNumber], buttonNumber))"> @allAnswers[buttonNumber]</button>
+        <label style="padding:20px"></label>
+       
+    }
+    
+
+    <p style="height:5px"></p>
+    <button class="confbtn" @onclick="Confirm">Potwierdź</button>
+   
+    <p style="height:5px"></p>
+    <p>Ogólny wynik: @GenGood / @GenAll </p>
+}else
+{      
+    <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
+    <p style="height:5px"></p>
+    <h4> @excerciseNumber</h4>
+    <p> @message </p>
+    <p> @chosen  </p>
+    <p> @correct </p>
+
+    <p>Twój wynik w tej rundzie to: @good / @all </p>
+    
+    <button class="confbtn" @onclick="Next">Następny</button>
+
+    <p>Ogólny wynik: @GenGood / @GenAll </p>
+    <p style="height:20px"></p>
+    <button class="backbtn" @onclick="GoBack">Powrót</button>
+}
+
+
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    int good = 0;
+    int all = 0;
+    int GenGood = 0;
+    int GenAll = 0;
+    private string message = "";
+    private string chosen = "Twoje odpowiedzi to: ";
+
+    private string correct = "Poprawne odpowiedzi to: ";
+    private string theEnd="";
+
+
+    private void ButtonClicked(MouseEventArgs e,string number, int buttonNumber)
+    {
+        if (number == "Brak" && bgstyle[6] != "game2btns")
+        {
+            chosenAnswers = new List<string> { };
+            for (int i = 0; i < bgstyle.Count() - 1; i++)
+            {
+                bgstyle[i] = "gamebtns";
+            }
+        }
+        else
+        {
+            bgstyle[6] = "gamebtns";
+
+        }
+        if (!chosenAnswers.Contains(number))
+        {
+            chosenAnswers.Add(number);
+            bgstyle[buttonNumber] = "game2btns";
+        }else
+        {
+            chosenAnswers.Remove(number);
+            bgstyle[buttonNumber] = "gamebtns";
+
+        }
+        this.StateHasChanged();
+    }
+
+    private async Task Confirm()
+    {
+        bool b = true;
+        ready = false;
+
+        all = all + answer.Count();
+
+        if (answer[0] == "Brak" && chosenAnswers.Count==0)
+        {
+            chosenAnswers.Add("Brak");
+        }
+
+        foreach(var a in answer)
+        {
+            if (!chosenAnswers.Contains(a))
+            {
+                b = false;
+            }
+            else
+            {
+                good++;
+            }
+        }
+        if(b==true && answer.Count()==chosenAnswers.Count())
+        {
+            message= "Wszystkie odpowiedzi poprawne :)";            
+        }else
+        {
+            if(good==0)
+            {
+                message = "Żaden wynik się nie zgadza :(";
+            }
+            else
+            {
+                if (b == false)
+                {
+                    message = "Brakuje niektórych odpowiedzi";
+                }
+                else
+                {
+                    message = "Część wyników niepoprawna";
+                }
+            }
+        }
+        chosenAnswers.Sort();
+
+        foreach(var a in answer)
+        {
+            correct = correct + a + ", ";
+        }
+        foreach (var a in chosenAnswers)
+        {
+            chosen = chosen + a + ", ";
+        }
+        int x;
+        if (chosenAnswers.Count != 0)
+        {
+            x = chosen.LastIndexOf(',');
+            chosen = chosen.Remove(x);
+        }else
+        {
+            chosen = "Nie wybrano żadnej odpowiedzi :(";
+        }
+        x = correct.LastIndexOf(',');
+        correct = correct.Remove(x);
+
+        await Task.Delay(1000);
+        await UpdateUserScore();
+        GenGood = GenGood + good;
+        GenAll = GenAll + all;
+        this.StateHasChanged();
+    }
+
+    private async Task Next()
+    {
+        message = "";
+        chosen = "Twoje odpowiedzi to: ";
+
+        correct = "Poprawne odpowiedzi to: ";
+        theEnd = "";
+        all = 0;
+        good = 0;
+        PrepareNewGame();
+        ready = true;
+        await Task.Delay(1000);
+        
+        this.StateHasChanged();
+
+    }
+
+    private async Task UpdateUserScore()
+    {
+        var authenticationState = await authenticationStateTask;
+        string username = authenticationState.User.Identity.Name;
+        if (username != null)
+        {
+            var progrss = await userProgressService.GetProgressByAll(username, "Podzielność", "Gry");
+            if (progrss != null)
+            {
+                good += progrss.good;
+                all += progrss.all;
+                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Podzielność", all = all, good = good };
+                await userProgressService.UpdateProgress(updated);
+
+            }
+            else
+            {
+                await userProgressService.AddProgressByName(username, "Podzielność", "Gry", good, all);
+            }
+
+        }
+    }
+
+
+    private void GoBack()
+    {
+        NavManager.NavigateTo("ChooseGame/uname/Podzielność");
+    }
+}

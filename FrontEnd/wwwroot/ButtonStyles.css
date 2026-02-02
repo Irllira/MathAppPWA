@@ -1,0 +1,135 @@
+﻿.mainbtns {
+    background-color: #3090FF;
+    color: white;
+    font-size: 20px;
+    padding: 10px;
+    border: none;
+    border-radius: 15px;
+    cursor: pointer;
+    box-shadow: 2px;
+}
+
+    .mainbtns:hover {
+        background-color: #0062D1;
+        color: dimgray;
+    }
+
+.addbtn {
+    background-color: #7BEB59;
+    color: black;
+    font-size: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+    .addbtn:hover {
+        background-color: #3DBA17;
+    }
+
+
+.gamebtns {
+    background-color: #186EF2;
+    color: white;
+    font-size: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 2px;
+}
+
+    .gamebtns:hover {
+        background-color: #2159C1;
+        color: dimgray;
+    }
+
+.game2btns {
+    background-color: #F29B18;
+    color: white;
+    font-size: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 2px;
+}
+
+    .game2btns:hover {
+        background-color: #C27D1A;
+        color: dimgray;
+    }
+
+.editbtn {
+    background-color: #597BEB !important;
+    color: black;
+    font-size: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+    .editbtn:hover {
+        background-color: #173DBA !important;
+    }
+
+
+.delbtn {
+    background-color: #EB597B !important;
+    color: black;
+    font-size: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+    .delbtn:hover {
+        background-color: #BA173D !important;
+    }
+
+.confbtn {
+    background-color: #5F87F5 !important;
+    color: black;
+    font-size: 20px;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+    .confbtn:hover {
+        background-color: #694EC4 !important;
+    }
+
+
+.backbtn {
+    background-color: #D2F55F !important;
+    color: black;
+    font-size: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+    .backbtn:hover {
+        background-color: #A8C44F !important;
+    }
+
+.helpbtn {
+    background-color: #FFDA47;
+    font-size: 12px;
+    padding: 8px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 2px;
+}
+
+    .helpbtn:hover {
+        background-color: #CCAE3C;
+        color: dimgray;
+    }

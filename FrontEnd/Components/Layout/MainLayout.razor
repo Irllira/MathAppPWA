@@ -1,0 +1,42 @@
+﻿@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+<header>
+    <link rel="stylesheet" href="/ButtonStyles.css">
+    <link rel="stylesheet" href="/OtherStyles.css">
+
+</header>
+
+<div class="page">
+    <div class="sidebar" style="background-image:none;background-color:darkblue; width:220px">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4" style="height:20px;">
+            <AuthorizeView>
+                <NotAuthorized>
+                    <a href="Log" class="nav-item">Zaloguj</a>
+                </NotAuthorized>
+                <Authorized>
+                    <a href="LogOut" class="nav-item">Wyloguj</a>
+                </Authorized>
+            </AuthorizeView>
+       
+            <AuthorizeView>
+                <NotAuthorized>
+                    <a href="NewAccount" class="nav-item">Nowe Konto</a>
+                </NotAuthorized>
+            </AuthorizeView>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>

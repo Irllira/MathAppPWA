@@ -1,0 +1,185 @@
+﻿@page "/addDefinition"
+@inherits  DefinitionBase
+
+@using System.ComponentModel.DataAnnotations
+@using DTO.DTOs
+@rendermode InteractiveServer
+
+
+<h4>Edytuj definicję</h4>
+
+<left>
+    <p style="height:5px"></p>
+    <p>
+        <label>Nazwa: </label>
+        <InputText @bind-Value="Name" />
+    </p>
+
+    <p>
+        <label>Typ: </label>
+        <InputSelect @bind-Value="Type" , @onchange="@((ChangeEventArgs __e) => Type = __e?.Value?.ToString())">
+            @foreach (var tp in Enum.GetValues(typeof(Types)))
+            {
+                <option value="@tp">@tp</option>
+            }
+        </InputSelect>
+    </p>
+
+
+    <p>
+        <label>Pierwsza część definicji: </label>
+        <InputText @bind-Value="p1"> </InputText>
+    </p>
+
+
+    <p>
+        <label>Druga część definicji: </label>
+        <InputText @bind-Value="p2"> </InputText>
+    </p>
+
+
+    @if (Units != null && Units.Count() != 0)
+    {
+        var unitList = Units.ToList();
+        //var unitCount = Units.ToList()[1].educationLevel;
+        <p>
+            <label>Dział: </label>
+
+            <InputSelect @bind-Value="unitName" , @onchange="@((ChangeEventArgs __e) => unitName = __e?.Value?.ToString())">
+                @foreach (var un in unitList)
+                {
+                    <option value="@un.name">@un.name</option>
+                }
+            </InputSelect>
+
+        </p>
+    }
+    else
+    {
+        <p>
+            <label>Dział:<i>Ładowanie...</i></label>
+
+        </p>
+
+    }
+
+
+    <button class="confbtn" @onclick="Confirm">Potwierdź</button>
+    <label> &nbsp &nbsp </label>
+    <button class="backbtn" @onclick="GoBack">Anuluj</button>
+</left>
+
+
+<right>
+
+    <button class="mainbtns" style="font-size:15px" @onclick="ShowIncorrects">Pokaż Niepoprawne Odpowiedzi</button>
+    <p></p>
+
+
+    @if (tableReady == 't')
+    {
+        <IncorrectDefsTable incorrects=@incorrects OnClickCallbackTable="HideTable" definitionID="ID"></IncorrectDefsTable>
+    }
+    else
+    {
+        <label></label>
+    }
+
+</right>
+<p></p>
+
+
+<p> @Message</p>
+
+@code {
+    [Parameter]
+    public EventCallback<string> OnClickCallback { get; set; }
+
+
+    [Parameter]
+    public required int ID { get; set; }
+    [Parameter]
+    public string? Name { get; set; }
+    [Parameter]
+    public string? Type { get; set; }
+    [Parameter]
+    public string? p1 { get; set; }
+    [Parameter]
+    public string? p2  { get; set; }
+    [Parameter]
+    public string? unitName { get; set; }
+
+    public IEnumerable<IncorrectDTO> incorrects { get; set; } = Enumerable.Empty<IncorrectDTO>();
+
+    char tableReady = 'n';
+
+
+    public string Message = "";
+
+
+    private async Task Confirm()
+    {
+
+        if (Name == "" || p1 == "" || p2 == "" || unitName == null || unitName == "")
+        {
+            Message = "Podaj nazwę definicji, obie jej części oraz jej dział";
+            return;
+        }
+        if (CheckRepeted() == false)
+        {
+            Message = "Definicja o tej nazwie istnieje już w tym dziale";
+            return;
+        }
+        if(Type=="")
+        {
+            Type = "Normal";
+        }
+
+        await EditDefinition(ID, Name, Type, p1, p2, unitName);
+        await OnClickCallback.InvokeAsync();
+    }
+
+
+
+    private bool CheckRepeted()
+    {
+        foreach (var def in Definitions)
+        {
+            if (def.name == Name && def.UnitName == unitName &&ID!=def.ID)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private async Task GoBack()
+    {
+        await OnClickCallback.InvokeAsync();
+    }
+
+    private async Task ShowIncorrects()
+    {
+        if (tableReady != 't')
+        {
+            var buff = await GetIncorrect(ID);
+            var inc = buff.ToList();
+            if (inc != null && inc.Count() != 0)
+            {
+                //  Message = inc[0].content;
+                incorrects = inc;
+            }
+            tableReady = 't';
+        }else
+        {
+            await HideTable();
+        }
+    }
+    private async Task HideTable()
+    {
+        await Task.Delay(500);
+        tableReady = 'n';
+        incorrects = Enumerable.Empty<IncorrectDTO>();
+    }
+    
+}

@@ -1,0 +1,17 @@
+﻿@page "/AccesDenied"
+@inject NavigationManager NavManager
+
+
+
+<h3 style="text-align:center">Brak Pozwolenia Na Oglądanie Tej Strony</h3>
+<p style="height:20px"></p>
+<div style="text-align:center">
+    <button class="mainbtns" @onclick="Log">Zaloguj się</button>
+</div>
+
+@code {
+    private void Log()
+    {
+        NavManager.NavigateTo("Log");
+    }
+}

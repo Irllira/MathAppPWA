@@ -1,0 +1,23 @@
+{
+    "name": "Aplikacja do nauki Matematyki",
+    "short_name": "Matematyka",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#000000",
+    "description": "Aplikacja do nauki matematyki dla uczniów na poziomie szkoły podstawowej",
+    "icons": [
+      {
+        "src": "icon-512.png",
+        "sizes": "270x270",
+        "type": "image/png"
+      },
+      {
+        "src": "icon-192.png",
+        "sizes": "270x270",
+        "type": "image/png"
+      }
+    ]
+}
+
+

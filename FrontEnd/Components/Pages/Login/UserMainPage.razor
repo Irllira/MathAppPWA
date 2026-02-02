@@ -1,0 +1,106 @@
+﻿@using DTO.DTOs
+@using Microsoft.AspNetCore.Components.Authorization
+@using FrontEnd.Components.Pages.Login
+@using FrontEnd.Components.Pages.Admin
+@using FrontEnd.Components.Pages.AccountData
+@page "/UserMainPage";
+
+@rendermode InteractiveServer
+
+<AuthorizeView Roles="User">
+    <Authorized>
+
+        <div style="align-content:center">
+            <p>
+                <button class="mainbtns" @onclick="Edit">Edytuj Dane</button> <label style="padding-right:20px"> </label>
+                <button class="mainbtns" @onclick="Score">Wyniki</button>
+
+            </p>
+        </div>
+
+        @if (type != 'n')
+        {
+            switch (type)
+            {
+                case 's':
+                    <UserScore></UserScore>
+
+                    break;
+
+                case 'e':
+                    <UpdateAccountData></UpdateAccountData>
+                    break;
+            }
+        }
+    </Authorized>
+    <NotAuthorized>
+       
+    </NotAuthorized>
+</AuthorizeView>
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+
+        <h1 style="text-align:center"></h1>
+       <p>
+            <button class="mainbtns" @onclick="Admin">Admin</button> <label style="padding-right:20px"> </label>
+            <button class="mainbtns" @onclick="Edit">Edytuj Dane</button> <label style="padding-right:20px"> </label>
+            <button class="mainbtns" @onclick="Score">Wyniki</button>
+
+        </p>
+
+        @if (type != 'n')
+        {
+            switch (type)
+            {
+                case 's':
+                    <UserScore></UserScore>
+                    break;
+
+                case 'e':
+                    <UpdateAccountData OnClickCallback="Back"></UpdateAccountData>
+                    break;
+               
+                case 'a':
+                    <AdminPage></AdminPage>
+                    break;
+            }
+        }
+    </Authorized>
+    <NotAuthorized>
+       
+    </NotAuthorized>
+</AuthorizeView>
+
+<AuthorizeView Roles="Admin, User">
+    <Authorized>
+        </Authorized>
+        <NotAuthorized>
+            <AccesDenied></AccesDenied>
+        </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    
+    private char type = 'n';
+
+    private void Edit()
+    {
+        type = 'e';
+    }
+
+    private void Score()
+    {
+        type = 's';
+    }
+    private void Admin()
+    {
+        type = 'a';
+    }
+    private void Back()
+    {
+        type = 'n';
+        this.StateHasChanged();
+    }
+
+}

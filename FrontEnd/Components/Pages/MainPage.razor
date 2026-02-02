@@ -1,0 +1,20 @@
+﻿@page "/"
+@using DTO.DTOs
+@using FrontEnd.Components.Pages
+@inject NavigationManager NavManager
+
+@rendermode InteractiveServer
+
+
+<h1 style="text-align:center"> Naucz się Matematyki! </h1>
+<p style="height:20px"></p>
+<div style="text-align:center">
+    <button class="mainbtns" style="font-size:30px" @onclick="PickUnit"> Wybierz Dział </button>
+</div>
+@code {
+    void PickUnit()
+    {
+        NavManager.NavigateTo("ChooseGame");
+
+    }
+}

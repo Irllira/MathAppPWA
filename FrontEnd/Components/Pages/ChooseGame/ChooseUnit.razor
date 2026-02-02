@@ -1,0 +1,52 @@
+﻿@using DTO.DTOs
+@inherits ChooseUnitBase
+@rendermode InteractiveServer
+
+
+<h3 style="color:darkblue; text-align:center">Wybierz Dział</h3>
+<p style="height:20px"></p>
+
+@if (units != null && units.Count() != 0)
+{
+    @for (int i = 0; i < units.Count(); i++)
+    {
+        var un = units.ToArray()[i];
+        var buttonNumber = i;
+        var name = un.name;
+        <label style="padding-left:20px; padding-top:10px">
+            <button class="mainbtns" @onclick="@(e => Confirm(e, buttonNumber, un))" name="@buttonNumber">@name</button>
+        </label>
+    }
+
+    <p style="height:50px"></p>
+
+
+    <button class="backbtn" @onclick="Back">Cofnij</button>
+}
+else
+{
+    if (units.Count() == 0)
+    {
+        <label>Brak danych</label>
+    }
+    else
+    {
+        <label><i>Ładowanie...</i></label>
+    }
+}
+
+@code {
+    [Parameter]
+    public EventCallback<UnitDTO> unitLevel { get; set; }
+   
+
+    void Confirm(MouseEventArgs e, int buttonNumber, UnitDTO unit)
+    {
+        unitLevel.InvokeAsync(unit);
+    }
+    void Back()
+    {
+        UnitDTO un = null;
+        unitLevel.InvokeAsync(un);
+    }
+}

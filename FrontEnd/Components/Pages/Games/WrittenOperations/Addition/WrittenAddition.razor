@@ -1,0 +1,323 @@
+﻿@page "/WrittenAddition"
+@using DTO.DTOs
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavManager
+
+@rendermode InteractiveServer
+@inherits WrittenAdditionBase;
+
+<PageTitle>Dodawanie Pisemne</PageTitle>
+
+
+
+@if (ready == true)
+{
+    <h1 text-align:center>Podaj Poprawną Liczbę </h1>
+
+    <p style="height:5px"></p> 
+    <p style="padding-left:41px">
+        @for (int i= 0; i<help.Count;i++)
+        {
+            var helpnum = i;
+            <input type="text" style="width:23px; height:30px; font-size:15px" maxlength="2" @bind-value="@help[helpnum]" @onkeydown="@Enter">
+            <label>&nbsp;</label>
+
+        }
+    </p>
+    if(exerciseNumber1.StartsWith(' '))
+    {
+        <p style="font-size:25px; padding-left:81px"><b> &nbsp @exerciseNumber1 </b></p>
+
+    }else
+    {
+        <p style="font-size:25px; padding-left:81px"><b> @exerciseNumber1 </b></p>
+        
+    }
+     if(exerciseNumber2.StartsWith(' '))
+    { 
+        if(operation=='+'){
+            <p style="font-size:25px; padding-left:34px"><b> @operation &nbsp &nbsp &nbsp @exerciseNumber2 </b></p>
+        }else
+        {
+           <p style="font-size:25px; padding-left:34px"><b> @operation &nbsp; &nbsp;&nbsp; &nbsp; @exerciseNumber2 </b></p>            
+        }
+
+    }else
+    {       
+            <p style="font-size:25px; padding-left:34px"><b> @operation &nbsp &nbsp  @exerciseNumber2 </b></p>        
+    }
+   
+    <hr style="height:5px;border-width:0;color:black;background-color:black; width:20%">
+
+    <p></p>
+    
+    <p style="padding-left:41px">
+        <input type="text" style="width:23px; height:30px; font-size:25px" maxlength="1" @bind-value="hun" @onkeydown="@Enter">&nbsp;
+        <input type="text" style="width:23px; height:30px; font-size:25px" maxlength="1" @bind-value="ten" @onkeydown="@Enter">&nbsp;
+        <input type="text" style="width:23px; height:30px; font-size:25px" maxlength="1" @bind-value="one" @onkeydown="@Enter">
+    </p>
+<!--
+    <p style="font-size:20px; padding-left:20px">
+   <InputSelect @bind-Value="hun" , @onchange="@((ChangeEventArgs __e) => hun = __e?.Value?.ToString())" >
+        @foreach (var digit in Enum.GetValues(typeof(Digits)))
+        {
+            int a = (int)digit;
+            <option value="@a">@a</option>
+        }
+    </InputSelect>
+
+        <InputSelect @bind-Value="ten" , @onchange="@((ChangeEventArgs __e) => ten = __e?.Value?.ToString())">
+        @foreach (var digit in Enum.GetValues(typeof(Digits)))
+        {
+            int a = (int)digit;
+            <option value="@a">@a</option>
+        }
+    </InputSelect>
+
+    <InputSelect @bind-Value="one" , @onchange="@((ChangeEventArgs __e) => one = __e?.Value?.ToString())">
+        @foreach (var digit in Enum.GetValues(typeof(Digits)))
+        {
+            int a = (int)digit;
+            <option value="@a">@a</option>
+        }
+    </InputSelect>
+    </p>
+    -->
+
+    <button class="confbtn" @onclick="Confirm">Potwierdź</button>
+    <p>@message</p>
+    foreach(var h in hint)
+    {
+    <p>@h</p>  
+    }
+    <p></p>
+
+    <p>Wynik: @good / @all </p>
+}
+else
+{
+    <p><b>Koniec Gry!</b></p>
+    <p>Twój wynik to: @good / @all </p>
+
+    <p style="height:20px"></p>
+    <button class="backbtn" @onclick="GoBack">Cofnij</button>
+}
+
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    int good = 0;
+    int all = 0;
+    private string message = "";
+    private string theEnd = "";
+    private string UserAnwser = "";
+    private string hun = "";
+    private string ten = "";
+    private string one = "";
+
+    private List<string> help = new List<string>(){"","",""};
+    private List<string> hint =new List<string>(){"","",""};
+
+
+    private async Task Confirm()
+    {
+        if (hun == "0"||hun=="")
+        {
+            hun = "";
+            if(ten =="0")
+            {
+                ten = "";
+            }
+        }   
+        UserAnwser = hun + ten + one;
+        if (UserAnwser == correctNumber.ToString())
+        {
+            await GoodNumber();
+        }
+        else
+        {
+            await WrongNumber();
+        }
+    }
+
+    private async Task GoodNumber()
+    {
+        good++;
+        all++;
+        message = "Dobrze!";
+        this.StateHasChanged();
+        if (all >= 10)
+        {
+            theEnd = "Koniec gry!";
+            ready = false;
+            await Task.Delay(1500);
+            await UpdateUserScore();
+            message = "";
+            this.StateHasChanged();
+            return;
+        }
+
+        help= new List<string> { "", "", "" };
+        hint = new List<string> { "", "", "" };
+
+        await Task.Delay(1500);
+        PrepareNewGame();
+        message = "";
+        UserAnwser = "";
+        hun = "";
+        ten = "";
+        one = "";
+
+        this.StateHasChanged();
+    }
+    private async Task WrongNumber()
+    {
+        Hints();
+        all++;
+        message = "Zła Odpowiedź! Spróbuj ponownie";
+        this.StateHasChanged();
+
+        await Task.Delay(1500);
+        //   PrepareNewGame();
+        message = "";
+        //  this.StateHasChanged();
+    }
+
+    public async Task Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            await Task.Delay(500);
+            await Confirm();
+        }
+    }
+
+    private void Hints()
+    {
+        if (operation == '+')
+        {
+            if (help[2] != "" && help[2] != " ")
+            {
+                hint[0] = "Liczba pomocnicza jedności powinna być pusta";
+            }
+            else
+            {
+                hint[0] = "";
+            }
+
+            if (exNum2 % 10 + exNum1 % 10 > 9)
+            {
+                var a = exNum2 % 10 + exNum1 % 10;
+                if (help[1] == ((a - (a % 10)) / 10).ToString())
+                {
+                    hint[1] = "Liczba pomocnicza dziesiątek dobrze uzupełniona!";
+                }
+                else
+                {
+                    if (hint[1] == "")
+                    {
+                        hint[1] = "Liczba pomocnicza dziesiątek niepoprawna";
+                    }
+                    else
+                    {
+                        hint[1] = "Liczba pomocnicza dziesiątek powinna wynosić " + (a - (a % 10)) / 10;
+                        help[1] = (a - (a % 10)) / 10 + "";
+                    }
+                }
+            }
+            if (correctNumber >= 100)
+            {
+                if (help[0] == ((correctNumber - (correctNumber % 100)) / 100).ToString())
+                {
+                    hint[2] = "Liczba pomocnicza setek dobrze uzupełniona!";
+                }
+                else
+                {
+
+                    hint[2] = "Liczba pomocnicza setek niepoprawna";
+                }
+            }
+            else
+            {
+                if (help[0] != "" && help[0] != " ")
+                {
+                    hint[2] = "Liczba pomocnicza setek powinna być pusta";
+                }
+            }
+        }
+        else
+        {
+            if (help[0] != "" && help[0] != " ")
+            {
+                hint[2] = "Liczba pomocnicza setek powinna być pusta";
+            }
+
+            if (exNum1 % 10 - exNum2 % 10 < 0)
+            {
+                if (help[1] == ((exNum1 - (exNum1 % 10)) / 10 - 1).ToString())
+                {
+                    hint[1] = "Liczba pomocnicza dziesiątek dobrze uzupełniona!";
+                }
+                else
+                {
+                    if (hint[1] != "")
+                    {
+                        hint[1] = "Liczba pomocnicza dziesiątek niepoprawna";
+                    }
+                    else
+                    {
+                        hint[1] = "Liczba pomocnicza dziesiątek powinna wynosić " + ((exNum1 - (exNum1 % 10)) / 10 - 1);
+                        help[1] = ((exNum1 - (exNum1 % 10)) / 10 - 1).ToString();
+                    }
+                }
+                if (help[2] == ((exNum1 % 10) + 10).ToString())
+                {
+                    hint[0] = "Liczba pomocnicza jedności dobrze uzupełniona!";
+                }
+                else
+                {
+                    if (hint[0] == "")
+                    {
+                        hint[0] = "Liczba pomocnicza jedności niepoprawna";
+                    }
+                    else
+                    {
+                        hint[0] = "Liczba pomocnicza jedności powinna wynosić " + ((exNum1 % 10) + 10);
+                        help[1] = ((exNum1 % 10) + 10).ToString();
+                    }
+                }
+            }
+        }
+    }
+
+    private async Task UpdateUserScore()
+    {
+        var authenticationState = await authenticationStateTask;
+        string username = authenticationState.User.Identity.Name;
+        if (username != null)
+        {
+            var progrss = await userProgressService.GetProgressByAll(username, "Działania Pisemne", "Gry");
+            if (progrss != null)
+            {
+                good += progrss.good;
+                all += progrss.all;
+                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Działania Pisemne", all = all, good = good };
+                await userProgressService.UpdateProgress(updated);
+
+            }
+            else
+            {
+                await userProgressService.AddProgressByName(username, "Działania Pisemne", "Gry", good, all);
+            }
+
+        }
+    }
+
+
+    private void GoBack()
+    {
+        NavManager.NavigateTo("ChooseGame/uname/Działania Pisemne");
+    }
+}

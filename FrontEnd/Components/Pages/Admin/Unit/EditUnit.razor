@@ -1,0 +1,247 @@
+﻿@page "/editUnit"
+@inherits UnitBase
+
+@using System.ComponentModel.DataAnnotations
+@using DTO.DTOs
+@rendermode InteractiveServer
+
+
+<h4>Edytuj dział</h4>
+
+<left>
+    <p style="height:5px"></p>
+    <p>
+        <label>Nazwa: </label>
+        <InputText @bind-Value="Name" />
+    </p>
+
+    <p></p>
+
+    <p>
+        <label>Opis: </label>
+        <InputText @bind-Value="Description"> </InputText>
+    </p>
+
+    @if (edLevels != null)
+    {
+        var edLevelsList = edLevels.ToList();
+
+
+        <p>
+            <label>Poziom edukacji: </label>
+            <InputSelect @bind-Value="chosenEdLvl" , @onchange="@((ChangeEventArgs __e) => chosenEdLvl = __e?.Value?.ToString())">
+                @foreach (var ed in edLevelsList)
+                {
+                    <option value="@ed.name">@ed.name</option>
+                }
+            </InputSelect>
+
+        </p>
+
+
+        <button class="confbtn" @onclick=" Confirm">Potwierdź</button>
+        <label style="width:20px">  </label>
+        <button class="backbtn" @onclick="GoBack">Anuluj</button>
+    }
+    else
+    {
+        <label>Poziom edukacji: <i>Ładowanie...</i> </label>
+    }
+</left>
+
+
+<right>
+    <button class="mainbtns" style="font-size:15px" @onclick="ShowPages">Pokaż Gry</button>
+    <p></p>
+
+
+    @if (tableReady == true)
+    {
+        @if (pages != null && pages.Count() != 0)
+        {
+
+            for (int i = 0; i < pages.Count(); i++)
+            {
+                pagesList = pages.ToList();
+                var j = i;
+
+                <p>
+                    <InputText @bind-Value="pagesList[j].Name" style="width:250px"></InputText>
+                    <InputText @bind-Value="pagesList[j].link" style="width:250px"></InputText>
+
+                    <button class="delbtn" style="font=10px" @onclick="@(e => Delete(e, pagesList[j].Id))">Usuń</button>
+                </p>
+
+                <p></p>
+            }
+            <button class="confbtn" @onclick="SaveChanges"> Zapisz Zmiany </button>
+        }
+        else
+        {
+            <p></p>
+            if (pages == null)
+            {
+                <label><i>Ładowanie...</i></label>
+            }
+            else
+            {
+                <label>Brak danych</label>
+            }
+        }
+        <p></p>
+
+        if (prepareNewPage == true)
+        {
+            <p>   Nazwa Gry: <InputText @bind-Value="newPageName" style="width:250px"></InputText></p>
+            <p> Link: <InputText @bind-Value="newPageLink" style="width:250px"></InputText> </p>
+
+            <button class="addbtn" @onclick="CreateNewPage"> Potwierdź</button>
+            <p></p>
+        }
+        else
+        {
+            <label></label>
+        }
+        <button class="addbtn" @onclick="PrepareNew">Dodaj nową</button>
+        <p></p>
+    }
+    else
+    {
+        <label></label>
+    }
+</right>
+
+<p> @message</p>
+
+@code {
+    [Parameter]
+    public EventCallback<string> OnClickCallback { get; set; }
+
+
+    [Parameter]
+    public int ID { get; set; }
+    [Parameter]
+    public string? Name { get; set; }
+    [Parameter]
+    public string? Description { get; set; } 
+    [Parameter]
+    public string? chosenEdLvl { get; set; } 
+
+    [Parameter]
+    public bool tableReady { get; set; }
+
+
+    public IEnumerable<PagesDTO> pages { get; set; } = Enumerable.Empty<PagesDTO>();
+    List<PagesDTO>? pagesList = new List<PagesDTO>();
+    bool prepareNewPage = false;
+    string newPageName = "";
+    string newPageLink = "";
+
+
+    private string message ="";
+   
+
+
+    private async Task Confirm()
+    {
+        if(Name==""|| Name==null||chosenEdLvl==null||chosenEdLvl=="")
+        {
+            message = "Podaj nazwę działu oraz wybierz poziom edukacji";
+            return;
+        }
+        if(Check()==false)
+        {
+            message = "Dział z tą nazwą istnieje już na tym poziomie edukacji";
+            return;
+        }
+        message = "Dział edytowany";
+        await EditUnit(ID, Name, Description, chosenEdLvl);
+        GoBack();
+    }
+
+    private bool Check()
+    {
+        foreach(var u in units)
+        {
+            if(Name==u.name && chosenEdLvl==u.educationLevel&& ID!=u.ID)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    private async void GoBack()
+    {
+        prepareNewPage = false;
+        await OnClickCallback.InvokeAsync();
+    }
+
+    private async Task Delete(MouseEventArgs e, int pageID)
+    {
+        await DeletePage(pageID);
+        //allIncorrects = await IncorrectService.GetAllIncorrect();
+        await Task.Delay(500);
+
+        pages = await GetPages(ID);
+        this.StateHasChanged();
+
+    }
+
+    private async Task SaveChanges()
+    {
+        if (pagesList == null)
+            return;
+        var pg = pages.ToArray();
+        int i = 0;
+        foreach(var p in pagesList)
+        {
+            if(!p.Equals(pg[i]))
+            {
+                await UpdatePage(p);
+            }
+        }
+        await Task.Delay(500);
+
+        pages = await GetPages(ID);
+
+        this.StateHasChanged();
+
+    }
+
+    private async Task ShowPages()
+    {
+        if (tableReady == true)
+        {
+            pages = new List<PagesDTO>(); 
+            tableReady =false;
+
+        }
+        else
+        {
+            pages = await GetPages(ID);
+            tableReady = true;
+        }
+
+    }
+
+    private async Task CreateNewPage()
+    {
+        var p = new PagesDTO { Id = 0, link = newPageLink, Name = newPageName, UnitID = ID };
+        await CreatePage(p);
+
+        pages = await GetPages(ID);
+        this.StateHasChanged();
+    }
+
+    private void PrepareNew()
+    {
+        if (prepareNewPage == true)
+        {
+            prepareNewPage = false;
+        }
+        else
+        {
+            prepareNewPage = true;
+        }
+    }
+}

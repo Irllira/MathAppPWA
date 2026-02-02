@@ -1,0 +1,55 @@
+﻿@using DTO.DTOs
+@inherits PickGameBase;
+@inject NavigationManager NavManager
+
+
+<h3 style="text-align:center">Wybierz grę z działu: @unitName </h3>
+<p style="height:10px"></p>
+
+<label style="padding-left:20px; padding-top:5px">
+    <button class="mainbtns" @onclick="@Theory">Teoria</button>
+</label>
+@if(pages != null)
+{
+    
+    for(int i=0;i<pages.Count();i++)
+    {
+        var pg = pages.ToArray()[i];
+        var buttonNumber = i;
+        var name = pg.Name;
+        <label style="padding-left:20px; padding-top:10px">
+            <button class="mainbtns" @onclick="@(e => Confirm(e, buttonNumber, pg))" name="@buttonNumber">@name</button>
+        </label>       
+    }
+   
+
+}else
+{
+    <p><i>Ładowanie...</i></p>
+}
+<p style="height:50px"></p>
+
+
+<button class="backbtn" @onclick="Back">Cofnij</button>
+
+
+
+
+@code {
+    [Parameter]
+    public EventCallback<string> chosenGame { get; set; }
+
+    void Theory()
+    {
+        NavManager.NavigateTo("Theory/" + unitName);
+    }
+
+    void Confirm(MouseEventArgs e, int buttonNumber, PagesDTO page)
+    {
+        NavManager.NavigateTo(page.link);
+    }
+    void Back()
+    {
+        chosenGame.InvokeAsync("");
+    }
+}

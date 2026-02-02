@@ -1,0 +1,62 @@
+﻿@using DTO.DTOs
+@using FrontEnd.Components.Services.Contracts
+@using Microsoft.AspNetCore.Components.Authorization
+
+
+<h2 style="align-content:center">Wyniki</h2>
+@if (userProgresses != null && userProgresses.Count() != 0)
+{
+    
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nazwa Działu</th>
+                    <th>Typ</th>
+                    <th>Wynik</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var up in userProgresses)
+                {
+                    double pr = (double)(@up.good) / @up.all;
+                    var precent = (int)(pr*100);
+                    <tr>
+                        <td>@up.unitName</td>
+                        <td>@up.type</td>
+                        <td>@precent %</td>                        
+                    </tr>
+                }
+            </tbody>
+        </table>
+    
+
+}else
+{
+    <p style="height:10px"></p>
+    <h3>Brak Wyników</h3>
+    <h4>Graj w gry by zdobyć wyniki</h4>
+}
+
+
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+    [Inject]
+    IUserProgressService userProgressService { get; set; }
+
+    IEnumerable<UserProgressDTO> userProgresses = Enumerable.Empty<UserProgressDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authenticationState = await authenticationStateTask;
+        string username = authenticationState.User.Identity.Name;
+        if (username != null)
+        {
+            userProgresses = await userProgressService.GetProgressByUser(username);
+        }
+    }
+
+
+}

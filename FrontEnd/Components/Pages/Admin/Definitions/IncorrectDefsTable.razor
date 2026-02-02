@@ -1,0 +1,186 @@
+﻿@using API.Enteties
+@using DTO.DTOs
+@rendermode InteractiveServer
+@inherits DefinitionBase;
+
+<p><b>Niepoprawne: </b></p>
+<p></p>
+@if (incorrects != null && incorrects.Count() != 0)
+{
+
+    foreach (var inc in incorrects)
+    {
+        <p>
+            <label style="padding-right:40px">@inc.content </label>
+      
+        <button class="delbtn" style="font=10px" @onclick="@(e => Delete(e, inc))">Usuń</button>
+        </p>
+
+        <p></p>
+    }
+}else
+{
+    <p></p>
+    if (incorrects == null)
+    {   
+        <label><i>Ładowanie...</i></label>
+    }else
+    {
+        <label>Brak danych</label>
+    }
+}
+<p></p>
+
+<button class="addbtn" @onclick="PrepareNew">Dodaj nową</button>
+<p></p>
+
+
+@if(addNew=='t')
+{
+    <InputSelect @bind-Value="chosenIncorrect" , @onchange="@((ChangeEventArgs __e) => chosenIncorrect = __e?.Value?.ToString())">
+        @foreach (var inc in allIncorrects)
+        {
+            <option value="@inc.content">@inc.content</option>
+        }
+    </InputSelect>
+
+    <p></p>
+    <p><button class="confbtn" style="font-size:15px" @onclick="ConfirmExisting">Wybierz Istniejącą</button></p>
+
+    <InputText @bind-Value="newIncorrect"> </InputText>
+    <p></p>
+
+    <button class="confbtn" style="font-size:15px" @onclick="ConfirmNewIncorrect">Stwórz Nową</button> 
+    <label style="padding-left:20px"></label>  <button class="backbtn" style="font-size:12px" @onclick="HideAddNew">Anuluj</button> 
+
+}
+
+<p>@Message</p>
+<button class="backbtn" @onclick="HideTable">Schowaj Niepoprawne</button>
+
+
+
+@code {
+
+    [Parameter]
+    public required IEnumerable<IncorrectDTO> incorrects { get; set; }
+    [Parameter]
+    public required int definitionID { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnClickCallbackTable { get; set; }
+
+
+    char addNew = 'n';
+
+    string newIncorrect = "";
+    string Message ="";
+    private IEnumerable<IncorrectDTO> allIncorrects { get; set; } = Enumerable.Empty<IncorrectDTO>();
+    private IEnumerable<DefIncPairDTO> AllPairs { get; set; } = Enumerable.Empty<DefIncPairDTO>();
+
+
+    string chosenIncorrect = "";
+
+    private async Task HideTable()
+    {
+        await OnClickCallbackTable.InvokeAsync();
+
+    }
+    private async Task PrepareNew()
+    {
+        addNew = 't';
+        allIncorrects = await IncorrectService.GetAllIncorrect();
+    }
+
+    private async Task ConfirmNewIncorrect()
+    {
+        if (newIncorrect == "" || newIncorrect == null)
+        {
+            Message = "Podaj treść niepoprawnej definicji";
+            return;
+        }
+        var check = CheckExisting(newIncorrect);
+        if(check==false)
+        {
+            var inc = await IncorrectService.GetIncorrectByContent(newIncorrect);
+            await IncorrectService.AddPair(inc.Id, definitionID);
+
+            Message = "Taka niepoprawna definicja już istnieje, niepoprawna definicja dodana do listy tej definicji";
+        }
+        else
+        {
+            var buff = new IncorrectDTO() { content = newIncorrect };
+            var inc = await IncorrectService.AddIncorrect(buff);
+            await IncorrectService.AddPair(inc.Id, definitionID);
+            Message = "Dodano definicje";
+        }
+        await Refresh();
+
+
+    }
+    private bool CheckExisting(string s)
+    {
+        foreach(var inc in allIncorrects)
+        {
+            if(inc.content==s)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private async Task ConfirmExisting()
+    {
+        if (chosenIncorrect == null || chosenIncorrect == "")
+        {
+            Message = "Wybierz istniejącą niepoprawną odpowiedź";
+            return;
+        }
+        var inc = await IncorrectService.GetIncorrectByContent(chosenIncorrect);
+        AllPairs = await IncorrectService.GetPairsByDef(definitionID);
+        if(CheckExistingPairs(inc.Id)==false)
+        {
+            Message = "Ta odpowiedź jest już dodana";
+            return;
+        }
+
+        await IncorrectService.AddPair(inc.Id, definitionID);
+        Message = "Niepoprawna odpowiedź dodana";
+        await Refresh();
+
+    }
+
+    private bool CheckExistingPairs(int incID)
+    {
+        foreach (var pair in AllPairs)
+        {
+            if (pair.IncorrectID==incID)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private async Task Delete(MouseEventArgs e, IncorrectDTO inc)
+    {
+        await IncorrectService.DeletePair(definitionID,inc.Id);
+        //allIncorrects = await IncorrectService.GetAllIncorrect();
+        
+        await Refresh();
+
+    }
+    private async Task Refresh()
+    {
+        incorrects = await IncorrectService.GetIncorrectByDefs(definitionID);
+        
+        this.StateHasChanged();
+    }
+
+    private void HideAddNew()
+    {
+        addNew = 'n';
+        Message = "";
+    }
+}

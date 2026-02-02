@@ -1,0 +1,104 @@
+﻿@using DTO.DTOs
+@using FrontEnd.Components.Pages.Admin.Unit
+@inherits DefinitionBase
+
+<h2>Definicje</h2>
+
+<button class="addbtn" @onclick="AddDefinition">Dodaj definicje</button>
+
+@if (component != 'n')
+{
+
+    switch (component)
+    {
+        case 'a':
+            <AddDefinition OnClickCallback="EndAddUpdate"></AddDefinition>
+            break;
+
+        case 'e':
+            <EditDefinition OnClickCallback="EndAddUpdate" ID="@chosenDefinition.ID" Name="@chosenDefinition.name" p1="@chosenDefinition.part1" p2="@chosenDefinition.part2" unitName="@chosenDefinition.UnitName" Type="@chosenDefinition.type"></EditDefinition>
+            break;
+
+        default:
+            break;
+    }
+}
+
+@if (Definitions!=null && Definitions.Count()!=0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>Część Pierwsza</th>
+                <th>Część Druga</th>
+                <th>Nazwa Działu</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var def in Definitions)
+            {
+
+                <tr>
+                    <td>@def.name</td>
+                    <td>@def.part1</td>
+                    <td>@def.part2</td>
+                    <td>@def.UnitName</td>
+                    <button class="editbtn" @onclick="@(e => Edit(e, def))">Edytuj</button>
+                    <button class="delbtn" @onclick="@(e => Delete(e, def))">Usuń</button>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}else
+{
+    <p></p>
+    if(Definitions== null)
+    {
+        <label><i>Ładowanie...</i></label>
+    }
+    else
+    {
+        <label>Brak danych</label>
+    }
+}
+
+@code {
+    // private string n { get; set; }
+    private DefinitionDTO chosenDefinition;
+
+    char component = 'n';
+    async Task Edit(MouseEventArgs e, DefinitionDTO def)
+    {
+        await EndAddUpdate();
+        await Task.Delay(100);
+        // tableReady = false;
+        chosenDefinition = def;
+       // n = "Edytuj "+ def.name;
+        component = 'e';
+    }
+    async Task Delete(MouseEventArgs e, DefinitionDTO def)
+    {
+        await DeleteDefinition(def);
+       // n = "Usuń ";
+        await RefreshState();
+    }
+    void AddDefinition()
+    {
+        component = 'a';
+    }
+    async Task EndAddUpdate()
+    {
+        component = 'n';
+        
+        await RefreshState();
+    }
+    private async Task RefreshState()
+    {
+        await Task.Delay(500);
+        await RefreshDatabase();
+        this.StateHasChanged();
+    }
+}
+

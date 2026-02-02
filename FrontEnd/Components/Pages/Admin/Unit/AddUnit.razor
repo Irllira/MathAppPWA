@@ -1,0 +1,88 @@
+﻿@page "/addUnit"
+@inherits UnitBase
+
+@using System.ComponentModel.DataAnnotations
+@rendermode InteractiveServer
+
+<p></p>
+<h4>Dodaj dział</h4>
+<p>
+    <label>Nazwa: </label>
+    <InputText @bind-Value="Name"/>
+</p>
+
+<p></p>
+
+<p>
+    <label>Opis: </label>
+    <InputText @bind-Value = "Description"> </InputText>
+</p>
+
+@if(edLevels != null)
+{
+    var edLevelsList = edLevels.ToList();
+
+
+    <p>
+    <label>Poziom edukacji: </label>
+    <InputSelect @bind-Value="chosenEdLvl" , @onchange="@((ChangeEventArgs __e) => chosenEdLvl = __e?.Value?.ToString())">
+        @foreach (var ed in edLevelsList)
+        {
+            <option value="@ed.name">@ed.name</option>
+        }
+    </InputSelect>
+    
+    </p>
+}else
+{
+    <label>Poziom edukacji: <i>Ładowanie...</i> </label>
+}
+
+<button class="confbtn" @onclick="showName">Potwierdź</button>
+<label> &nbsp &nbsp </label>
+<button class="backbtn" @onclick="GoBack">Anuluj</button>
+
+<p> @Message</p>
+
+@code {
+    [Parameter]
+    public EventCallback<string> OnClickCallback { get; set; }
+
+    private string Name = "", Description = "";
+    private string Message = "";
+    private string? chosenEdLvl="";
+
+    private void showName()
+    {
+        if(Name==""||chosenEdLvl==""||chosenEdLvl==null)
+        {
+            Message = "Podaj nazwę działu oraz poziom edukacji";
+            return;
+        }
+        if(CheckRepeted()==false)
+        {
+            Message = "Dział o tej nazwie istnieje już w tym poziomie edukacji";
+            return;
+        }
+        AddUnit(Name,Description,chosenEdLvl);
+        Message = "Dział dodany";
+        GoBack();
+    }
+
+    private bool CheckRepeted()
+    {
+        foreach(var un in units)
+        {
+            if(un.name==Name && un.educationLevel==chosenEdLvl)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+    private async void GoBack()
+    {
+       await OnClickCallback.InvokeAsync();
+    }
+
+}

@@ -1,0 +1,116 @@
+﻿@page "/NewAccount"
+
+@using FrontEnd.Components.Pages.Admin.Unit
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@inject NavigationManager NavManager
+@inherits LoginBase
+
+
+<PageTitle>Nowe Konto</PageTitle>
+
+<h1 style="text-align:center">Utwórz nowe konto</h1>
+<p></p>
+
+<EditForm Model=model OnValidSubmit="Confirm" FormName="NewAccountForm">
+    <DataAnnotationsValidator />
+
+    <p>
+        <label>Nazwa Użytkownika: </label>
+        <InputText @bind-Value="model.Username" />
+        <ValidationMessage For="() => model.Username" />
+
+    </p>
+
+    <p></p>
+
+    <p>
+        <label>Hasło: </label>
+        <InputText @bind-Value="model.Password"> </InputText>
+        <ValidationMessage For="() => model.Password" />
+
+    </p>
+    <p></p>
+    <p>
+        <label>Powtórz hasło: </label>
+        <InputText @bind-Value="model.Password2"> </InputText>
+        <ValidationMessage For="() => model.Password2" />
+
+    </p>
+    <p></p>
+    <p>
+        <label>Email: </label>
+        <InputText @bind-Value="model.Email" />
+        <ValidationMessage For="() => model.Email" />
+
+    </p>
+
+    <button class="confbtn" @onclick="Confirm">Potwierdź</button>
+
+    <p>@conf</p>
+
+</EditForm>
+
+@code {
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
+
+    [SupplyParameterFromForm]
+    AccountModel model { get; set; } = new();
+
+
+    string conf = "";
+
+    async Task Confirm()
+    {
+        if (model.Username == "" || model.Email == "" || model.Password == "" || model.Password2 == "" ||
+        model.Username == null || model.Email == null || model.Password == null || model.Password2 == null)
+        {
+            conf = "Uzupełnij wszystkie informacjie";
+            return;
+        }
+        if (model.Password != model.Password2)
+        {
+            conf = "Hasła muszą być takie same";
+            return;
+        }
+
+        var accUn = await accountService.GetAccountAdminByName(model.Username);
+        var accEm = await accountService.GetAccountAdminByEmail(model.Email);
+        if (accUn != null || accEm!=null)
+        {
+            conf = "Istnieje już konto z tą nazwą lub emailem";
+            return;
+        }
+
+        conf = ":)";
+        PasswordHashing hash = new PasswordHashing();
+
+        var salt = hash.CreateSalt();
+        string hashedPassword = hash.HashPassword(model.Password,salt);
+
+        // conf = accounts.ToArray()[0].Username+ " "+ Username;
+        await AddAccount(model.Username, hashedPassword, model.Email,Convert.ToHexString(salt));
+
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, model.Username),
+            new Claim(ClaimTypes.Role, "User")
+        };
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(principal);
+        NavManager.NavigateTo("/");
+    }
+
+
+
+    void LogIn()
+    {
+        NavManager.NavigateTo("Log");
+    }
+}

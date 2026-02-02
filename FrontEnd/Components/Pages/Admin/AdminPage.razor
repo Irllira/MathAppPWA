@@ -1,0 +1,61 @@
+﻿@page "/adminPage"
+@using FrontEnd.Components.Pages.Admin.Accounts
+@using FrontEnd.Components.Pages.Admin.Definitions
+@using FrontEnd.Components.Pages.Admin.Unit
+@using Microsoft.AspNetCore.Components.Authorization
+@using FrontEnd.Components.Pages.Login
+
+@rendermode InteractiveServer
+
+<PageTitle>Admin</PageTitle>
+
+<AuthorizeView Roles="Admin">
+    <Authorized>
+        <h1>Admin</h1>
+
+        <p>
+            <button class="mainbtns" @onclick="Unit"> Działy </button> <label style="padding-right:20px"> </label>
+            <button class="mainbtns" @onclick="Definition"> Definicje </button> <label style="padding-right:20px"> </label>
+            <button class="mainbtns" @onclick="Account"> Konta </button>
+        </p>
+
+        @if (type != 'n')
+        {
+            switch (type)
+            {
+                case 'a':
+                    <Accounts></Accounts>
+                    break;
+
+                case 'u':
+                    <Unit></Unit>
+                    break;
+               
+                case 'd':
+                    <Definitions></Definitions>
+                    break;
+            }
+        }
+    </Authorized>
+    <NotAuthorized>
+        <AccesDenied></AccesDenied>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private char type = 'n';         //n- none;   u- unit;    e- education;  d- definition;  a- users
+
+    private void Unit()
+    {
+        type = 'u';
+    }
+
+    private void Definition()
+    {
+        type = 'd';
+    }
+    private void Account()
+    {
+        type = 'a';
+    }
+}

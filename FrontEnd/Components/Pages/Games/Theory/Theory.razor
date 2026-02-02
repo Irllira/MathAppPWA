@@ -1,0 +1,205 @@
+﻿@page "/Theory/{Unit}"
+
+@rendermode InteractiveServer
+@using DTO.DTOs
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavManager
+@inherits TheoryBase;
+
+
+@if(ready==true){
+if (Definitions.Count!=0 && currentDef!=null)
+{
+    Random rnd = new Random();
+  
+    <h1 style="text-align:center">Wybierz poprawną odpowiedź</h1>
+    <p style="height:10px"></p>
+
+    if(currentDef.type=="Img")
+    {
+
+        <p style="font-size:20px">@currentDef.part1:</p>
+
+        if ( imgName != ""){
+            var imgsource = "/Assets/"+imgName;
+            <img src="@imgsource"  />
+            <p></p>
+        }
+
+        int correct = rnd.Next(0, incorrects.Count() + 1);
+        var j = 0;
+        for (int i = 0; i < incorrects.Count() + 1; i++)
+        {
+                if (i == correct)
+                {
+                    string s = currentDef.part2;
+                    if(s.Contains(";"))
+                    {
+                        var img = s.Split(";");
+                        s = img[0];
+                        var imgs = "/Assets/" + img[1];
+
+                        <label style="padding-left:10px;padding-top:5px">
+                            <button class="gamebtns" @onclick="GoodNumber">@s
+                                <img src="@imgs" style="height:150px;width:150px" />
+                            </button>
+                        </label>
+
+                    }else
+                    {
+                        <label style="padding-left:10px;padding-top:5px"> <button class="gamebtns" @onclick="GoodNumber">@s</button> </label>
+                    }
+                }
+                else
+                {
+                    string s = incorrects[j].content;
+                    if (s.Contains(";"))
+                    {
+                        var img = s.Split(";");
+                        s = img[0];
+                        var imgs = "/Assets/" + img[1];
+
+                        <label style="padding-left:10px;padding-top:5px">
+                            <button class="gamebtns" @onclick="WrongNumber">@s <img src="@imgs" style="height:150px;width:150px" /></button>
+                        </label>
+                    }else
+                    {
+                        <label style="padding-left:10px;padding-top:5px"> <button class="gamebtns" @onclick="WrongNumber">@s</button></label>
+                    }
+                    j++;
+                }
+        }
+    }else
+    {
+        <p style="font-size:20px">@currentDef.part1:</p>
+        <p style="height:10px"></p>
+
+        int correct = rnd.Next(0, incorrects.Count()+1);
+        var j = 0;
+        for(int i=0;i<incorrects.Count()+1;i++)
+        {
+            if(i==correct)
+            {
+                string s = currentDef.part2;
+                    <label style="padding-left:10px;padding-top:5px"> <button class="gamebtns" @onclick="GoodNumber">@s</button> </label>
+            }
+            else
+            {
+                    <label style="padding-left:10px;padding-top:5px"> <button class="gamebtns" @onclick="WrongNumber">@incorrects[j].content</button></label>
+                j++;
+            }
+        }
+    }
+    
+    <p style="height:10px"></p>
+    <p>@message</p>
+    <p style="height:10px"></p>
+    <p>Wynik: @good / @all </p>
+
+}else
+{
+        <p><i>Ładowanie...</i></p>
+}
+}else
+{
+    if(error==false){
+        <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
+        <p style="height:5px"></p>
+  
+        <p> @theEnd </p>
+        <p style="height:5px"></p>
+
+        <p>Twój wynik to: @good / @all </p>
+    
+  <!--  <button class="confbtn" @onclick="Next">Następny</button>-->
+
+        <p style="height:20px"></p>
+        <button class="gamebtns" @onclick="GoBack">Powrót</button>
+    }else
+    {
+        <h2 style="text-align:center"><b>Ten dział nie ma na razie ćwiczeń teorii</b></h2>
+        <p style="height:10px"></p>
+  
+         <h4 style="text-align:center"><b>Przepraszamy za problemy</b></h4>
+
+        <p style="height:20px"></p>
+        <button class="gamebtns" @onclick="GoBack">Powrót</button>
+    }
+}
+
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationStateTask { get; set; }
+
+
+    int good = 0;
+    int all = 0;
+    private string message = "";
+    private string theEnd="";
+
+    private async Task GoodNumber()
+    {
+        good++;
+        all++;
+        message = "Dobrze!";
+        if(currentDef!=null)
+            usedDefinitions.Add(currentDef.ID);
+        this.StateHasChanged();
+        if(all>=10 || usedDefinitions.Count==Definitions.Count)
+        {
+            ready = false;
+            theEnd = "Koniec gry!";
+            await Task.Delay(500);
+            await UpdateUserScore();
+            message = "";
+            this.StateHasChanged();
+            return;
+        }
+
+        await Task.Delay(500);
+        await PrepareNew();
+        message = "";
+
+        this.StateHasChanged();
+
+    }
+    private async Task WrongNumber()
+    {
+        all++;
+        message = "Zła Odpowiedź! Spróbuj ponownie";
+        this.StateHasChanged();
+
+        await Task.Delay(1500);
+        //   PrepareNewGame();
+        message = "";
+        //  this.StateHasChanged();
+    }
+
+    private async Task UpdateUserScore()
+    {
+        var authenticationState = await authenticationStateTask;
+        string username = authenticationState.User.Identity.Name;
+        if (username != null)
+        {
+            var progrss = await userProgressService.GetProgressByAll(username, Unit, "Teoria");
+            if(progrss!=null)
+            {
+                good += progrss.good;
+                all += progrss.all;
+                var updated=new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Teoria", unitName = Unit, all = all, good = good };
+                await userProgressService.UpdateProgress(updated);
+
+            }else
+            {
+                await userProgressService.AddProgressByName(username, Unit, "Teoria", good, all);
+            }
+
+        }
+    }
+
+    private void GoBack()
+    {
+        NavManager.NavigateTo("ChooseGame/uname/" + Unit);
+    }
+}

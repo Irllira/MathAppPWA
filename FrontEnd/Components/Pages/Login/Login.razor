@@ -1,0 +1,87 @@
+﻿@page "/Log"
+
+@using FrontEnd.Components.Pages.Login
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+@inject NavigationManager NavManager
+@inherits LoginBase
+
+
+<PageTitle>Zaloguj</PageTitle>
+
+<h1 style="text-align:center">Zaloguj się</h1>
+<p style="height:10px"></p>
+<EditForm Model="@model" OnValidSubmit="CheckAccount" FormName="LoginForm" >
+    <DataAnnotationsValidator />
+    <p style="align-content:center">
+        <label>Nazwa Użytkownika: </label>
+        <InputText @bind-Value="model.Username" />
+        <ValidationMessage For="() => model.Username" />
+    </p>
+
+    <p></p>
+
+    <p style="align-content:center">
+        <label>Hasło: </label>
+        <InputText @bind-Value="model.Password"> </InputText>
+        <ValidationMessage For="() => model.Password" />
+    </p>
+
+    <button type="submit" class="mainbtns" style="font:15px; align-content:center"> Potwierdź </button>
+    <p align-content:center>@conf</p>
+    <p></p>
+</EditForm>
+
+
+
+@code {
+    [CascadingParameter]
+    public HttpContext? HttpContext { get; set; }
+
+    [SupplyParameterFromForm]
+    public LoginModel model { get; set; } = new();
+
+    string conf="";
+
+    protected async Task CheckAccount()
+    {
+
+        if(model.Username==""||model.Username==null ||model.Password==null||model.Password=="")
+        {
+            conf = "Podaj Login i Hasło";
+            return;
+        }
+        var acc= await accountService.GetAccountPasswordsByName(model.Username);
+
+        if (acc == null)
+        {
+            conf = "Niepoprawny Login lub Hasło";
+            return;
+        }
+
+        PasswordHashing hash = new PasswordHashing();
+        var givenHashed = hash.HashPassword(model.Password,Convert.FromHexString(acc.Salt));
+        
+        if( givenHashed != acc.Password)
+        {
+            conf = "Niepoprawny Login lub Hasło";
+            return;
+        }
+        conf = "Zalogowano";
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.Name, model.Username),
+            new Claim(ClaimTypes.Role, acc.Role)
+        };
+
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(principal);
+        NavManager.NavigateTo("/");
+
+    }
+   
+}

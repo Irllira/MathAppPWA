@@ -1,0 +1,106 @@
+﻿@using DTO.DTOs
+@inherits UnitBase;
+@rendermode InteractiveServer
+
+<h2>Działy</h2>
+
+<button class="addbtn" @onclick="AddUnit">Dodaj dział</button>
+<p style="height:5px"></p>
+@if (c != 'n')
+{
+
+    switch (c)
+    {
+        case 'a':
+            <AddUnit OnClickCallback="EndAddUpdate"></AddUnit>
+            break;
+
+        case 'e':
+            <EditUnit OnClickCallback="EndAddUpdate" ID="@unitToEdit.ID"  Name="@unitToEdit.name" Description="@unitToEdit.description" chosenEdLvl="@unitToEdit.educationLevel" tableReady=false></EditUnit>
+            break;
+
+        default:
+            break;
+    }
+}
+
+@if (units!=null && units.Count()!=0)
+{
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nazwa</th>
+                <th>Opis</th>
+                <th>Poziom nauczania</th>
+                
+            </tr>
+        </thead>
+        <tbody style="background-color:none">
+            @for(int i=0;i<units.Count();i++)
+            {
+                var unit = units.ToArray()[i];
+                var buttonNumber = i;
+                
+                <tr >
+                    <td>@unit.name</td>
+                    <td>@unit.description</td>
+                    <td>@unit.educationLevel</td>
+                    <button class="editbtn" @onclick="@(e => Edit(e, buttonNumber, unit))" name="buttonNumber">Edytuj</button>
+                    <button class="delbtn" @onclick="@(e => Delete(e, buttonNumber, unit))" name="buttonNumber">Usuń</button>
+                </tr>
+               
+
+            }
+        </tbody>
+    </table>
+}else
+{
+    if (units == null)
+    {
+        <labe>Brak danych</labe>
+    }
+    else
+    {
+        <label><i>Ładowanie...</i></label>
+    }
+}
+
+
+@code {
+    private UnitDTO unitToEdit;
+
+    char c = 'n';
+    async Task Edit(MouseEventArgs e, int buttonNumber, UnitDTO u)
+    {
+      
+        // await GetPages(u.ID);
+        unitToEdit = u;
+        c = 'e';
+        await Task.Delay(500);
+        this.StateHasChanged();
+    }
+    async Task Delete(MouseEventArgs e, int buttonNumber, UnitDTO u)
+    {
+        await DeleteUnit(u);
+        await RefreshState();
+    }
+    void AddUnit()
+    {
+        c = 'a';
+    }
+    async Task EndAddUpdate()
+    {
+        c = 'n';
+     //   await RefreshDatabase();
+        await RefreshState();
+    }
+    private async Task RefreshState()
+    {
+        await Task.Delay(1000);
+        await RefreshDatabase();
+        this.StateHasChanged();
+    }
+
+}
+

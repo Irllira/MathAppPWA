@@ -1,0 +1,96 @@
+﻿@page "/updateAccountData"
+@using DTO.DTOs
+@using Microsoft.AspNetCore.Components.Authorization
+@using FrontEnd.Components.Pages.Login
+
+@inherits UpdateAccountDataBase;
+
+        <h1 style="text-align:center">Edytuj dane</h1>
+        <p style="height:10px"></p>
+@if(account !=null){
+        <p>
+            <label>Nazwa użytkownika: @account.Username </label>
+        </p>
+
+        <p>
+            <label>Email: </label>
+            <InputText @bind-Value="email" />
+        </p>
+        <p>
+            <label>Stare Hasło: </label>
+        <InputText @bind-Value="oldPassword"></InputText>
+        </p>
+
+        <p>
+            <label>Nowe Hasło: </label>
+            <InputText @bind-Value="password"></InputText>
+        </p>
+        <p>
+            <label>Powtórz Nowe Hasło: </label>
+            <InputText @bind-Value="password2"></InputText>
+        </p>
+
+        <button class="confbtn" @onclick="Confirm">Potwierdź</button>
+        <label> &nbsp &nbsp </label>
+        <button class="backbtn" @onclick="GoBack">Anuluj</button>
+        <p></p>
+    <label> @message</label>
+}else
+{
+    <h2><i>Ładowanie...</i></h2>
+}
+
+
+@code {
+    [Parameter]
+    public EventCallback<string> OnClickCallback { get; set; }
+
+    string message = "";
+    string oldPassword = "";
+
+    private async Task Confirm()
+    {
+        PasswordHashing hash = new PasswordHashing();
+        var pass = password;
+        //active = account.isActive.ToString();
+        // role = account.Role;
+        if ((email == null || email == "" ) && (password == "" || password == null ||password2 == "" || password2 == null))
+        {
+            message = "Podaj email lub hasło";
+            return;
+        }
+
+        if ( password!= password2)
+        {
+            message = "Hasła muszą się zgadzać";
+            return;
+        }  
+        message = "Konto edytowane";
+        if(password=="")
+        {
+            pass = account.Password;
+        }else
+        {
+            if (oldPassword=="")
+            {
+                message = "By ustawić nowe hasło podaj stare";
+                return;
+            }
+            var oldPassHashed = hash.HashPassword(oldPassword, Convert.FromHexString(account.Salt));
+            if (oldPassHashed != account.Password)
+            {
+                message = "Stare hasło się nie zgadza, hasło nie zostało zmienione";
+                pass = account.Password;
+
+            }
+        }
+        string passwordHashed = hash.HashPassword(pass, Convert.FromHexString(account.Salt));
+
+        await EditAccount(email, passwordHashed);
+        await GoBack();
+    }
+    private async Task GoBack()
+    {
+        await OnClickCallback.InvokeAsync();
+    }
+}

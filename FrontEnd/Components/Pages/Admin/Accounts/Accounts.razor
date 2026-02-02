@@ -1,0 +1,83 @@
+﻿@page "/accounts"
+@using DTO.DTOs
+@inherits AccountsBase;
+
+
+<h2>Użytkownicy </h2>
+
+@if (action != 'n')
+{
+    if (action == 'e' && chosenAccont != null)
+    {
+        <AccountUpdateAdmin account=@chosenAccont OnClickCallback="EndAdd"></AccountUpdateAdmin>
+    }
+
+}
+
+
+@if (Accounts != null && Accounts.Count()!=0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Active</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for(int i=0;i<Accounts.Count();i++)
+            {
+                var buttonNumber = i;
+                var acc = Accounts.ToArray()[i];
+                <tr>
+                    <td>@acc.Username</td>
+                    <td>@acc.Email</td>
+                    <td>@acc.Role</td>
+                    <td>@acc.isActive</td>
+                    <button class="editbtn" @onclick="@(e => Edit(e, buttonNumber, acc))" name="Edit+@buttonNumber">Edytuj</button>
+                    <!--  <button @onclick="@(e => Delete(e, buttonNumber))" name="Delete+@buttonNumber">Usuń</button>-->
+                </tr>
+            }
+        </tbody>
+    </table>
+}else
+{
+    if (Accounts == null)
+    {
+        <label> <i>Ładowanie...</i> </label>
+    }
+    else
+    {
+        <label>Brak danych</label>
+    }
+}
+
+@code {
+    private AccountsDTO chosenAccont;
+    private char action='n';
+
+    private void Delete(MouseEventArgs e, int buttonNumber)
+    {
+
+    }
+    private void Edit(MouseEventArgs e, int buttonNumber, AccountsDTO a)
+    {
+        chosenAccont = a;
+        action = 'e';
+    }
+
+    async void EndAdd()
+    {
+        action = 'n';
+
+        await RefreshState();
+    }
+    private async Task RefreshState()
+    {
+        await Task.Delay(1000);
+        await RefreshDatabase();
+        this.StateHasChanged();
+    }
+}

@@ -1,0 +1,154 @@
+﻿@page "/ChooseGame"
+@page "/ChooseGame/uname/{unitName}"
+@page "/ChooseGame/elvl/{educatioName}"
+
+@using DTO.DTOs
+@using FrontEnd.Components.Pages.ChooseGame
+@rendermode InteractiveServer
+
+
+<PageTitle>Wybierz grę</PageTitle>
+
+<h1></h1>
+
+@if (educatioName == "" && unitName =="")
+{
+    <EdLevel educationLevel="@HandelChosenLvl"></EdLevel>
+}else
+{
+    if(unitName ==""){
+        <ChooseUnit unitLevel="@HandelChosenUnit" educationLevelName="@educatioName"></ChooseUnit>
+    }else
+    {
+       <!-- if (gameType == ""){
+            <h3 style="color:darkblue">@unitName</h3>
+            <p style="height:20px"></p>
+            <p><b>@Warning</b></p>
+            <button @onclick="TheoryGame" class="mainbtns"> Teoria </button>
+            <label>&nbsp &nbsp</label>
+            <button class="mainbtns" @onclick="ExampleGame">Przykład</button>
+            <p style="height:20px"></p>
+
+            <button class="backbtn" @onclick="Back">Cofnij</button>
+        }else
+        {
+            <h3 style="color:darkblue">@unitName: @gameType</h3>
+            <p style="height:20px"></p>
+
+            switch(gameType)
+            {
+                case "Theory":
+                    <p>:)</p>
+                   
+                    break;
+                default:
+                    <p></p>
+                    gameType = "";
+                    Warning = "Błąd, proszę wybierz ponownie";
+
+                    break;
+            }
+            <p style="height:20px"></p>
+
+            <button class="backbtn" @onclick="BackToChosenUnit">Cofnij</button>
+         }-->
+         <PickGame unitName="@unitName" chosenGame=HandlePickGame ></PickGame>
+    }
+}
+
+@code{
+    EducationLevelDTO ChosenLvl = new EducationLevelDTO();
+    UnitDTO ChosenUnit;
+
+    [Parameter]
+    public string? educatioName { set; get; }
+    [Parameter]
+    public string? unitName { set; get; }
+
+    string gameType = "";
+
+    string Warning = "";
+
+
+    protected override void OnInitialized()
+    {
+        if(unitName==null)
+        {
+            unitName = "";
+        }
+        if (educatioName == null)
+        {
+            educatioName = "";
+        }
+    }
+
+    public async Task HandelChosenLvl(
+           EducationLevelDTO chLvl)
+    {
+        ChosenLvl = chLvl;
+        educatioName = ChosenLvl.name;
+    }
+    public async Task HandelChosenUnit(
+          UnitDTO chUnit)
+    {
+        ChosenUnit = chUnit;
+        if(ChosenUnit==null)
+        {
+            educatioName = "";
+            unitName = "";
+        }
+        else
+        {
+            unitName = chUnit.name;
+
+        }
+    }
+
+    public async Task HandlePickGame(
+        string s
+    )
+    {
+        if (s == "")
+        {
+            unitName = "";
+            this.StateHasChanged();
+
+            return;
+
+        }
+        if(s=="Theory")
+        {
+            
+        }
+    }
+
+
+    void TheoryGame()
+    {
+        gameType = "Theory";
+    }
+    void ExampleGame()
+    {
+        gameType = "Example";
+    }
+
+    void BackToChosenUnit()
+    {
+        gameType = "";
+        this.StateHasChanged();
+
+    }
+    void Back()
+    {
+        educatioName = "";
+        unitName = "";
+        gameType = "";
+        ChosenLvl = null;
+        ChosenUnit = null;
+    }
+    async Task WaitForRefresh()
+    {
+        await Task.Delay(1000);
+        this.StateHasChanged();
+    }
+}
