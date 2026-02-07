@@ -101,6 +101,8 @@
     }
     private async Task UpdateUserScore()
     {
+        var g = good;
+        var a = all;
         var authenticationState = await authenticationStateTask;
         string username = authenticationState.User.Identity.Name;
         if (username != null)
@@ -108,9 +110,9 @@
             var progrss = await userProgressService.GetProgressByAll(username, "Liczby Naturalne", "Gry");
             if (progrss != null)
             {
-                good += progrss.good;
-                all += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Liczby Naturalne", all = all, good = good };
+                g += progrss.good;
+                a += progrss.all;
+                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Liczby Naturalne", all = a, good = g };
                 await userProgressService.UpdateProgress(updated);
 
             }

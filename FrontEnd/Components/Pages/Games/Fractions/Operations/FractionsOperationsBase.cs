@@ -1,4 +1,5 @@
-﻿using FrontEnd.Components.Services.Contracts;
+﻿using FrontEnd.Components.Classes;
+using FrontEnd.Components.Services.Contracts;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontEnd.Components.Pages.Games.Fractions.Operations
@@ -23,6 +24,8 @@ namespace FrontEnd.Components.Pages.Games.Fractions.Operations
         public int correctNum;
 
         public string excercise = "";
+
+        protected Euklides euklides = new Euklides();   
 
         protected override void OnInitialized()
         {
@@ -83,7 +86,7 @@ namespace FrontEnd.Components.Pages.Games.Fractions.Operations
                     else
                     {
                         diffden = true;
-                        correctDen = NWW(denominator[0], denominator[1]);
+                        correctDen = euklides.NWW(denominator[0], denominator[1]);
 
                         var multi0 = correctDen / denominator[0];
                         var multi1 = correctDen / denominator[1];
@@ -116,7 +119,7 @@ namespace FrontEnd.Components.Pages.Games.Fractions.Operations
                     else
                     {
                         diffden = true;
-                        correctDen = NWW(denominator[0], denominator[1]);
+                        correctDen = euklides.NWW(denominator[0], denominator[1]);
 
                         var multi0 = correctDen / denominator[0];
                         var multi1 = correctDen / denominator[1];
@@ -157,7 +160,7 @@ namespace FrontEnd.Components.Pages.Games.Fractions.Operations
 
         protected void checkSmallerFraction(int i)
         {
-            var nwd = Eukl(numerator[i], denominator[i]);
+            var nwd = euklides.Eukl(numerator[i], denominator[i]);
             if (nwd != 1)
             {
                 //var b = ExcerciseDenominator[i] / ExcerciseNumerator[i];
@@ -169,39 +172,7 @@ namespace FrontEnd.Components.Pages.Games.Fractions.Operations
             {
                 return;
             }
-        }
-
-        protected int NWW(int a, int b)
-        {
-            var nwd = Eukl(a, b);
-            return (a * b) / nwd;
-        }
-        protected int Eukl(int a, int b)
-        {
-            while (a != 0 && b != 0)
-            {
-                if (a > b)
-                {
-                    var buff = a % b;
-                    a = buff;
-                }
-                else
-                {
-                    var buff = b % a;
-                    b = buff;
-                }
-            }
-
-            if (a == 0)
-            {
-                return b;
-            }
-            else
-            {
-                return a;
-            }
-        }
-
+        }     
 
         protected List<int> denominators = new List<int>() { 2, 3, 4, 5, 6, 8, 10 };
 

@@ -19,7 +19,7 @@ namespace FrontEnd.Components.Pages.Games.Theory
         protected IUserProgressService userProgressService { get; set; }
 
         [Parameter]
-        public string Unit { get; set; }
+        public static string Unit { get; set; }
 
         public List<DefinitionDTO> Definitions { get; set; } = new List<DefinitionDTO>();
 
@@ -76,7 +76,7 @@ namespace FrontEnd.Components.Pages.Games.Theory
          
             await FillIncorrects(currentDef.ID);
             ready = true;
-
+            usedDefinitions.Add(currentDef.ID);
         }
         protected async Task FillIncorrects(int defID)
         {

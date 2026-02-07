@@ -139,6 +139,8 @@
 
     private async Task UpdateUserScore()
     {
+        var g = good;
+        var a = all;
         string unit = "";
         switch (type)
         {
@@ -163,9 +165,9 @@
             var progrss = await userProgressService.GetProgressByAll(username, unit, "Gry");
             if (progrss != null)
             {
-                good += progrss.good;
-                all += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = unit, all = all, good = good };
+                g += progrss.good;
+                a += progrss.all;
+                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = unit, all = a, good = g };
                 await userProgressService.UpdateProgress(updated);
 
             }

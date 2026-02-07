@@ -1,4 +1,5 @@
-﻿using FrontEnd.Components.Services.Contracts;
+﻿using FrontEnd.Components.Classes;
+using FrontEnd.Components.Services.Contracts;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontEnd.Components.Pages.Games.CommonDiv
@@ -23,6 +24,8 @@ namespace FrontEnd.Components.Pages.Games.CommonDiv
         protected int numberNumbers2 = 0;
         protected List<int> divNumbers2 = new List<int>();
         protected List<int> userNumbers2 = new List<int>();
+
+        protected Euklides euklides = new Euklides();
         protected override void OnInitialized()
         {
             PrepareNewGame();
@@ -39,7 +42,7 @@ namespace FrontEnd.Components.Pages.Games.CommonDiv
             do {
                 excerciseNumber1 = rnd.Next(20, 120);
                 excerciseNumber2 = rnd.Next(20, 120);
-                anwserNWD = Eukl(excerciseNumber1, excerciseNumber2);
+                anwserNWD = euklides.Eukl(excerciseNumber1, excerciseNumber2);
             } while (anwserNWD == 1 || excerciseNumber1==excerciseNumber2);
 
             divNumbers1.Add(excerciseNumber1);
@@ -54,37 +57,5 @@ namespace FrontEnd.Components.Pages.Games.CommonDiv
 
             ready = true;
         }
-
-        protected int NWW(int a, int b)
-        {
-            var nwd = Eukl(a, b);
-            return (a * b) / nwd;
-        }
-        protected int Eukl(int a, int b)
-        {
-            while (a != 0 && b != 0)
-            {
-                if (a > b)
-                {
-                    var buff = a % b;
-                    a = buff;
-                }
-                else
-                {
-                    var buff = b % a;
-                    b = buff;
-                }
-            }
-
-            if (a == 0)
-            {
-                return b;
-            }
-            else
-            {
-                return a;
-            }
-        }
-
     }
 }

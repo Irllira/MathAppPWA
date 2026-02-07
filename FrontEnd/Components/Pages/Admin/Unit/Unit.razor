@@ -16,12 +16,25 @@
             break;
 
         case 'e':
-            <EditUnit OnClickCallback="EndAddUpdate" ID="@unitToEdit.ID"  Name="@unitToEdit.name" Description="@unitToEdit.description" chosenEdLvl="@unitToEdit.educationLevel" tableReady=false></EditUnit>
+            if(unitToEdit!=null){
+                <EditUnit OnClickCallback="EndAddUpdate" ID="@unitToEdit.ID"  Name="@unitToEdit.name" Description="@unitToEdit.description" chosenEdLvl="@unitToEdit.educationLevel" tableReady=false></EditUnit>
+            }
+            else
+            {
+                <label>Wystąpił błąd! Spróbuj ponownie</label>
+            }
             break;
+            
 
         default:
             break;
     }
+}
+else
+{
+    <p style="height:5px"></p>
+    <InputText @bind-Value="LookUp" placeholder="Wyszukaj..."></InputText>
+
 }
 
 @if (units!=null && units.Count()!=0)
@@ -37,20 +50,19 @@
             </tr>
         </thead>
         <tbody style="background-color:none">
-            @for(int i=0;i<units.Count();i++)
+            @foreach(var unit in units)
             {
-                var unit = units.ToArray()[i];
-                var buttonNumber = i;
-                
-                <tr >
-                    <td>@unit.name</td>
-                    <td>@unit.description</td>
-                    <td>@unit.educationLevel</td>
-                    <button class="editbtn" @onclick="@(e => Edit(e, buttonNumber, unit))" name="buttonNumber">Edytuj</button>
-                    <button class="delbtn" @onclick="@(e => Delete(e, buttonNumber, unit))" name="buttonNumber">Usuń</button>
-                </tr>
-               
+                if (unit.name.Contains(LookUp, StringComparison.OrdinalIgnoreCase) || unit.educationLevel.Contains(LookUp, StringComparison.OrdinalIgnoreCase) || (unit.description != null && unit.description.Contains(LookUp, StringComparison.OrdinalIgnoreCase)))
+                {
+                    <tr>
+                        <td>@unit.name</td>
+                        <td>@unit.description</td>
+                        <td>@unit.educationLevel</td>
+                        <button class="editbtn" @onclick="@(e => Edit(e, unit))" name="buttonNumber">Edytuj</button>
+                        <button class="delbtn" @onclick="@(e => Delete(e, unit))" name="buttonNumber">Usuń</button>
+                    </tr>
 
+                }
             }
         </tbody>
     </table>
@@ -68,10 +80,11 @@
 
 
 @code {
-    private UnitDTO unitToEdit;
+    private UnitDTO? unitToEdit = null;
+    private string LookUp = "";
 
     char c = 'n';
-    async Task Edit(MouseEventArgs e, int buttonNumber, UnitDTO u)
+    async Task Edit(MouseEventArgs e,  UnitDTO u)
     {
       
         // await GetPages(u.ID);
@@ -80,7 +93,7 @@
         await Task.Delay(500);
         this.StateHasChanged();
     }
-    async Task Delete(MouseEventArgs e, int buttonNumber, UnitDTO u)
+    async Task Delete(MouseEventArgs e, UnitDTO u)
     {
         await DeleteUnit(u);
         await RefreshState();

@@ -8,7 +8,7 @@
 
 @if (component != 'n')
 {
-
+    LookUp = "";
     switch (component)
     {
         case 'a':
@@ -22,10 +22,25 @@
         default:
             break;
     }
+}else
+{
+    <p style="height:5px"></p>
+    <InputText @bind-Value="LookUp" placeholder="Wyszukaj..."></InputText>
+
 }
+
 
 @if (Definitions!=null && Definitions.Count()!=0)
 {
+  /*  var defs = Definitions.ToList();
+   
+    defs.Sort(delegate (DefinitionDTO x, DefinitionDTO y)
+   {
+       if (x.UnitName == null && y.UnitName == null) return 0;
+       else if (x.UnitName == null) return -1;
+       else if (y.UnitName == null) return 1;
+       else return x.UnitName.CompareTo(y.UnitName);
+   });*/
     <table class="table">
         <thead>
             <tr>
@@ -38,9 +53,9 @@
         <tbody>
             @foreach (var def in Definitions)
             {
-
-                <tr>
-                    <td>@def.name</td>
+                if (def.name.Contains(LookUp, StringComparison.OrdinalIgnoreCase) || def.UnitName.Contains(LookUp, StringComparison.OrdinalIgnoreCase) || def.part1.Contains(LookUp, StringComparison.OrdinalIgnoreCase) || def.part2.Contains(LookUp, StringComparison.OrdinalIgnoreCase)){
+                    <tr>
+                        <td>@def.name</td>
                     <td>@def.part1</td>
                     <td>@def.part2</td>
                     <td>@def.UnitName</td>
@@ -48,6 +63,7 @@
                     <button class="delbtn" @onclick="@(e => Delete(e, def))">Usuń</button>
 
                 </tr>
+                }
             }
         </tbody>
     </table>
@@ -67,6 +83,8 @@
 @code {
     // private string n { get; set; }
     private DefinitionDTO chosenDefinition;
+
+    private string LookUp = "";
 
     char component = 'n';
     async Task Edit(MouseEventArgs e, DefinitionDTO def)

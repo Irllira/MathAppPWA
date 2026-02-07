@@ -1,7 +1,9 @@
 ﻿@page "/Log"
 
-@using FrontEnd.Components.Pages.Login
 @using System.Security.Claims
+@using FrontEnd.Components.Classes
+@using FrontEnd.Components.Pages.Login
+@using FrontEnd.Components.Pages.Login.Models
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authentication.Cookies
 @inject NavigationManager NavManager
@@ -16,7 +18,7 @@
     <DataAnnotationsValidator />
     <p style="align-content:center">
         <label>Nazwa Użytkownika: </label>
-        <InputText @bind-Value="model.Username" />
+        <InputText @bind-Value="model.Username" placeholder="Nazwa Użytkownika" />
         <ValidationMessage For="() => model.Username" />
     </p>
 
@@ -24,7 +26,7 @@
 
     <p style="align-content:center">
         <label>Hasło: </label>
-        <InputText @bind-Value="model.Password"> </InputText>
+        <InputText @bind-Value="model.Password" placeholder="Hasło" type="Hasło"> </InputText>
         <ValidationMessage For="() => model.Password" />
     </p>
 

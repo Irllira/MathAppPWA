@@ -98,7 +98,17 @@
             }
             @if(hint3>1|| ShowHint == true)
             {
-                <p style="font-size:25px"> Znak @modifier * (@modifier @excerciseNumber2) = <InputText @bind-Value="userSymb" style="width:40px;font-size:20px" /></p>
+                char sym1;
+                char sym2 = sym;
+                if(modifier<0)
+                {
+                    sym1 = '-';
+                }else
+                {
+                    sym1 = '+';
+                }                
+
+                <p style="font-size:25px"> Znak:  (@sym1) * (@sym2) = <InputText @bind-Value="userSymb" style="width:40px;font-size:20px" /></p>
             }
          </right>
     }
@@ -223,27 +233,27 @@
     }
     private bool CheckSymbol()
     {
-         //var s = false;
-            if(modifier*excerciseNumber1>0 && sym==userSymb[0])
+        //var s = false;
+        if(modifier*excerciseNumber1>0 && sym==userSymb[0])
+        {
+            return true;
+        }
+        if(modifier*excerciseNumber1<0)
+        {
+            if(sym=='+')
             {
-                return true;
-            }
-            if(modifier*excerciseNumber1<0)
-            {
-                if(sym=='+')
-                {
-                    if (userSymb == "-")
-                        return true;
+                if (userSymb == "-")
+                    return true;
 
-                }else
-                {
-                    if (userSymb == "+")
-                        return true;
-                }
+            }else
+            {
+                if (userSymb == "+")
+                    return true;
             }
-            return false;
+        }
+        return false;
     }
-   
+
 
     private void ShowHelp()
     {
@@ -251,6 +261,8 @@
     }
     private async Task UpdateUserScore()
     {
+        var g = good;
+        var a = all;
         var authenticationState = await authenticationStateTask;
         string username = authenticationState.User.Identity.Name;
         if (username != null)
@@ -258,9 +270,9 @@
             var progrss = await userProgressService.GetProgressByAll(username, "Wyrażenia algebraiczne", "Gry");
             if (progrss != null)
             {
-                good += progrss.good;
-                all += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Wyrażenia algebraiczne", all = all, good = good };
+                g += progrss.good;
+                a += progrss.all;
+                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Wyrażenia algebraiczne", all = a, good = g };
                 await userProgressService.UpdateProgress(updated);
 
             }

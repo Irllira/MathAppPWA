@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace FrontEnd.Components.Pages.Login
+namespace FrontEnd.Components.Pages.Login.Models
 {
     public class AccountModel
     {

@@ -1,4 +1,5 @@
-﻿using FrontEnd.Components.Services.Contracts;
+﻿using FrontEnd.Components.Classes;
+using FrontEnd.Components.Services.Contracts;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontEnd.Components.Pages.Games.BiggerSmallerGame
@@ -24,6 +25,8 @@ namespace FrontEnd.Components.Pages.Games.BiggerSmallerGame
         protected string excercise = "";
         int max = 0;
         int min = 0;
+
+        protected Euklides euklides = new Euklides();
         protected override void OnInitialized()
         {
             PrepareNewGame();
@@ -177,7 +180,7 @@ namespace FrontEnd.Components.Pages.Games.BiggerSmallerGame
             if (symbol != 0)
             {
                 den = rnd.GetItems(denominators, 1)[0];
-                nww = NWW(den, excerciseNumberDen);
+                nww = euklides.NWW(den, excerciseNumberDen);
 
                 correctNumberDen = nww;
                 multi = nww/excerciseNumberDen;
@@ -233,7 +236,7 @@ namespace FrontEnd.Components.Pages.Games.BiggerSmallerGame
             for (int i = 0; i < 4; i++)
             {
                 den = rnd.GetItems(denominators, 1)[0];
-                nww = NWW(den, excerciseNumberDen);
+                nww = euklides.NWW(den, excerciseNumberDen);
 
                 wrongNumbersDen[i] = nww;
                 multi =  nww/ excerciseNumberDen;
@@ -279,36 +282,6 @@ namespace FrontEnd.Components.Pages.Games.BiggerSmallerGame
         }
 
         protected readonly int[] denominators = [4, 5, 6, 8, 10, 11, 12, 15 ];
-        protected int NWW(int a, int b)
-        {
-            var nwd = Eukl(a, b);
-            return (a * b) / nwd;
-        }
-        protected int Eukl(int a, int b)
-        {
-            while (a != 0 && b != 0)
-            {
-                if (a > b)
-                {
-                    var buff = a % b;
-                    a = buff;
-                }
-                else
-                {
-                    var buff = b % a;
-                    b = buff;
-                }
-            }
-
-            if (a == 0)
-            {
-                return b;
-            }
-            else
-            {
-                return a;
-            }
-        }
 
     }
 }

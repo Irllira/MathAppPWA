@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace FrontEnd.Components
+namespace FrontEnd.Components.Classes
 {
     public class PasswordHashing
     {

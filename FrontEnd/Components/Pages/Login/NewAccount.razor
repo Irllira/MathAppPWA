@@ -1,9 +1,12 @@
 ﻿@page "/NewAccount"
 
-@using FrontEnd.Components.Pages.Admin.Unit
 @using System.Security.Claims
+@using FrontEnd.Components.Classes
+@using FrontEnd.Components.Pages.Admin.Unit
+@using FrontEnd.Components.Pages.Login.Models
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authentication.Cookies
+
 @inject NavigationManager NavManager
 @inherits LoginBase
 
@@ -18,7 +21,7 @@
 
     <p>
         <label>Nazwa Użytkownika: </label>
-        <InputText @bind-Value="model.Username" />
+        <InputText @bind-Value="model.Username" placeholder="Nazwa Użytkownika"/>
         <ValidationMessage For="() => model.Username" />
 
     </p>
@@ -27,21 +30,22 @@
 
     <p>
         <label>Hasło: </label>
-        <InputText @bind-Value="model.Password"> </InputText>
+        <InputText @bind-Value="model.Password" type="password" placeholder="Hasło"></InputText>
         <ValidationMessage For="() => model.Password" />
-
+        <!--<input type="password" value="@model.Password" />
+        <PasswordEntry></PasswordEntry>-->
     </p>
     <p></p>
     <p>
         <label>Powtórz hasło: </label>
-        <InputText @bind-Value="model.Password2"> </InputText>
+        <InputText @bind-Value="model.Password2" placeholder="Hasło" type="password"> </InputText>
         <ValidationMessage For="() => model.Password2" />
 
     </p>
     <p></p>
     <p>
         <label>Email: </label>
-        <InputText @bind-Value="model.Email" />
+        <InputText @bind-Value="model.Email" placeholder="Email" />
         <ValidationMessage For="() => model.Email" />
 
     </p>
@@ -53,6 +57,7 @@
 </EditForm>
 
 @code {
+    ElementReference PassID;
     [CascadingParameter]
     public HttpContext? HttpContext { get; set; }
 
@@ -78,7 +83,7 @@
 
         var accUn = await accountService.GetAccountAdminByName(model.Username);
         var accEm = await accountService.GetAccountAdminByEmail(model.Email);
-        if (accUn != null || accEm!=null)
+        if (accUn != null || accEm != null)
         {
             conf = "Istnieje już konto z tą nazwą lub emailem";
             return;
@@ -88,11 +93,10 @@
         PasswordHashing hash = new PasswordHashing();
 
         var salt = hash.CreateSalt();
-        string hashedPassword = hash.HashPassword(model.Password,salt);
+        string hashedPassword = hash.HashPassword(model.Password, salt);
 
         // conf = accounts.ToArray()[0].Username+ " "+ Username;
-        await AddAccount(model.Username, hashedPassword, model.Email,Convert.ToHexString(salt));
-
+        await AddAccount(model.Username, hashedPassword, model.Email, Convert.ToHexString(salt));
 
         var claims = new List<Claim>
         {
@@ -106,7 +110,6 @@
         await HttpContext.SignInAsync(principal);
         NavManager.NavigateTo("/");
     }
-
 
 
     void LogIn()

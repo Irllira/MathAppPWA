@@ -27,7 +27,5 @@ namespace FrontEnd.Components.Pages.Login
             accounts = await accountService.GetAccountsPasswords();
 
         }
-
-       
     }
 }

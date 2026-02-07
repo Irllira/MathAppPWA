@@ -1,4 +1,5 @@
-﻿using FrontEnd.Components.Services.Contracts;
+﻿using FrontEnd.Components.Classes;
+using FrontEnd.Components.Services.Contracts;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontEnd.Components.Pages.Games.Fractions
@@ -17,6 +18,8 @@ namespace FrontEnd.Components.Pages.Games.Fractions
         public int multiply;
         public string correctNumber="";
         public List<int> wrongMultiply = new List<int>();
+
+        protected Euklides euklides = new Euklides();
         protected override void OnInitialized()
         {
             PrepareNewGame();
@@ -38,7 +41,7 @@ namespace FrontEnd.Components.Pages.Games.Fractions
             multiply = rnd.Next(2, 11);
             denominator*= multiply;
             numerator *= multiply;
-            multiply = Eukl(numerator, denominator);
+            multiply = euklides.Eukl(numerator, denominator);
 
             correctNumber = numerator/multiply + " / " + denominator/multiply;
 
@@ -82,30 +85,6 @@ namespace FrontEnd.Components.Pages.Games.Fractions
 
         protected readonly List<int> denominators = new List<int>() { 2, 3, 4, 5, 6, 8, 10};
         
-        protected int Eukl(int a, int b)
-        {
-            while (a != 0 && b != 0)
-            {
-                if (a > b)
-                {
-                    var buff = a % b;
-                    a = buff;
-                }
-                else
-                {
-                    var buff = b % a;
-                    b = buff;
-                }
-            }
-
-            if (a == 0)
-            {
-                return b;
-            }
-            else
-            {
-                return a;
-            }
-        }
+    
     }
 }

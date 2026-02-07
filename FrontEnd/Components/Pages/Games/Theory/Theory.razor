@@ -2,12 +2,13 @@
 
 @rendermode InteractiveServer
 @using DTO.DTOs
+@using FrontEnd.Components.Classes
 @using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager NavManager
 @inherits TheoryBase;
 
 
-@if(ready==true){
+@if (ready == true && usedDefinitions.Count != Definitions.Count)
 if (Definitions.Count!=0 && currentDef!=null)
 {
     Random rnd = new Random();
@@ -102,13 +103,10 @@ if (Definitions.Count!=0 && currentDef!=null)
 }
 }else
 {
-    if(error==false){
+    if (error == false || usedDefinitions.Count == Definitions.Count)
         <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
-        <p style="height:5px"></p>
-  
-        <p> @theEnd </p>
-        <p style="height:5px"></p>
-
+        <p style="height:10px"></p>
+      
         <p>Twój wynik to: @good / @all </p>
     
   <!--  <button class="confbtn" @onclick="Next">Następny</button>-->
@@ -129,6 +127,9 @@ if (Definitions.Count!=0 && currentDef!=null)
 
 
 @code {
+    GamesBase gamesBase = new GamesBase(Unit, "Teoria");
+
+
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
@@ -136,20 +137,16 @@ if (Definitions.Count!=0 && currentDef!=null)
     int good = 0;
     int all = 0;
     private string message = "";
-    private string theEnd="";
 
     private async Task GoodNumber()
     {
         good++;
         all++;
         message = "Dobrze!";
-        if(currentDef!=null)
-            usedDefinitions.Add(currentDef.ID);
-        this.StateHasChanged();
+        //this.StateHasChanged();
         if(all>=10 || usedDefinitions.Count==Definitions.Count)
         {
             ready = false;
-            theEnd = "Koniec gry!";
             await Task.Delay(500);
             await UpdateUserScore();
             message = "";
@@ -178,6 +175,8 @@ if (Definitions.Count!=0 && currentDef!=null)
 
     private async Task UpdateUserScore()
     {
+        var g = good;
+        var a = all;
         var authenticationState = await authenticationStateTask;
         string username = authenticationState.User.Identity.Name;
         if (username != null)
@@ -185,9 +184,9 @@ if (Definitions.Count!=0 && currentDef!=null)
             var progrss = await userProgressService.GetProgressByAll(username, Unit, "Teoria");
             if(progrss!=null)
             {
-                good += progrss.good;
-                all += progrss.all;
-                var updated=new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Teoria", unitName = Unit, all = all, good = good };
+                g += progrss.good;
+                a += progrss.all;
+                var updated=new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Teoria", unitName = Unit, all = a, good = g};
                 await userProgressService.UpdateProgress(updated);
 
             }else

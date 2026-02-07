@@ -20,9 +20,6 @@ namespace FrontEnd.Components.Pages.Admin.Definitions
         public IEnumerable<UnitDTO> Units { get; set; } = Enumerable.Empty<UnitDTO>();
         public IEnumerable<DefinitionDTO> Definitions { get; set; } = Enumerable.Empty<DefinitionDTO>();
 
-       // protected bool tableReady = false;
-
-        //  protected override async Task OnInitializedAsync()
         protected override async Task OnInitializedAsync()
         {
             Units = await unitService.GetUnits();

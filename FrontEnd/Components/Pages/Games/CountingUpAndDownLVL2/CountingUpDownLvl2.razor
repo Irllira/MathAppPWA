@@ -85,8 +85,11 @@
         message = "";
         //  this.StateHasChanged();
     }
-      private async Task UpdateUserScore()
+    
+    private async Task UpdateUserScore()
     {
+        var g = good;
+        var a = all;
         var authenticationState = await authenticationStateTask;
         string username = authenticationState.User.Identity.Name;
         if (username != null)
@@ -94,9 +97,9 @@
             var progrss = await userProgressService.GetProgressByAll(username, "Podstawy Liczb", "Gry");
             if (progrss != null)
             {
-                good += progrss.good;
-                all += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Podstawy Liczb", all = all, good = good };
+                g += progrss.good;
+                a += progrss.all;
+                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Podstawy Liczb", all = a, good = g };
                 await userProgressService.UpdateProgress(updated);
 
             }

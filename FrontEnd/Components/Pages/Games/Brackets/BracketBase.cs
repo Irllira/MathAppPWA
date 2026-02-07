@@ -1,4 +1,5 @@
-﻿using FrontEnd.Components.Services.Contracts;
+﻿using FrontEnd.Components.Classes;
+using FrontEnd.Components.Services.Contracts;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontEnd.Components.Pages.Games.Brackets
@@ -21,6 +22,8 @@ namespace FrontEnd.Components.Pages.Games.Brackets
         protected int modifier;
 
         protected List<string> wrongAnwsers = new List<string>();
+
+        protected Euklides euklides = new Euklides();
 
         protected string excercise="";
         protected override void OnInitialized()
@@ -47,7 +50,7 @@ namespace FrontEnd.Components.Pages.Games.Brackets
                 modifier = rnd.Next(2, 10);
                 excerciseNumber1 *= modifier;
                 excerciseNumber2 *= modifier;
-                modifier = Eukl(excerciseNumber1, excerciseNumber2);
+                modifier = euklides.Eukl(excerciseNumber1, excerciseNumber2);
 
                 switch (symbol)
                 {
@@ -113,31 +116,6 @@ namespace FrontEnd.Components.Pages.Games.Brackets
                 }
             }
             ready = true;
-        }
-
-        protected int Eukl(int a, int b)
-        {
-            while(a!=0 && b!=0)
-            {
-                if(a>b)
-                {
-                    var buff = a % b;
-                    a = buff;
-                }else
-                {
-                    var buff = b % a;
-                    b = buff;
-                }
-            }
-
-            if(a==0)
-            {
-                return b;
-            }
-            else
-            {
-                return a;
-            }
         }
     }
 }
