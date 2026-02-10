@@ -10,20 +10,11 @@ namespace FrontEnd.Components.Classes
 {
     public class GamesBase
     {
-        [CascadingParameter]
-        private Task<AuthenticationState> authenticationStateTask { get; set; }
-
-        [Inject]
-        protected IUserProgressService userProgressService { get; set; }
-
-        [Inject]
-        NavigationManager NavManager { get; set; }
-
         string unitName;
         string type;
 
-        int good = 0;
-        int all = 0;
+        public int good = 0;
+        public int all = 0;
         public string message = "";
         public GamesBase(string unName, string tp)
         {
@@ -31,44 +22,25 @@ namespace FrontEnd.Components.Classes
             type = tp;
         }      
 
-        public async Task GoodNumber()
+        public async Task GoodAnswer()
         {
             good++;
             all++;
             message = "Dobrze!";
 
-
-           // razor.StateHasChanged();
-            if (all >= 10 )//|| usedDefinitions.Count == Definitions.Count)
-            {
-                //ready = false;
-                await Task.Delay(500);
-                await UpdateUserScore();
-                message = "";
-              //  this.StateHasChanged();
-                return;
-            }
-
             await Task.Delay(500);
-            //await PrepareNew();
             message = "";
-
-           // this.StateHasChanged();
-
         }
-        public async Task WrongNumber()
+        public async Task WrongAnswer()
         {
             all++;
             message = "Zła Odpowiedź! Spróbuj ponownie";
-            //this.StateHasChanged();
-
             await Task.Delay(1500);
-            //   PrepareNewGame();
             message = "";
-            //  this.StateHasChanged();
         }
 
-        public async Task UpdateUserScore()
+    
+        public async Task UpdateUserScore(Task<AuthenticationState> authenticationStateTask, IUserProgressService userProgressService)
         {
             var g = good;
             var a = all;
@@ -89,13 +61,7 @@ namespace FrontEnd.Components.Classes
                 {
                     await userProgressService.AddProgressByName(username, unitName, type, good, all);
                 }
-
             }
-        }
-
-        private void GoBack()
-        {
-            NavManager.NavigateTo("ChooseGame/uname/" + unitName);
         }
     }
 }

@@ -13,10 +13,7 @@ namespace FrontEnd.Components.Services
         }
         public async Task<IEnumerable<UnitDTO>> GetUnits()
         {
-            //   throw new NotImplementedException();
-
             var response = await _httpClient.GetAsync($"/api/Unit");
-            // var x = response.Content.
 
             return await response.Content.ReadFromJsonAsync<IEnumerable<UnitDTO>>();
         }

@@ -1,4 +1,5 @@
-﻿using FrontEnd.Components.Services.Contracts;
+﻿using FrontEnd.Components.Classes;
+using FrontEnd.Components.Services.Contracts;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontEnd.Components.Pages.CountingUpAndDown.CountingUpDownBase
@@ -15,6 +16,8 @@ namespace FrontEnd.Components.Pages.CountingUpAndDown.CountingUpDownBase
         protected int[] wrongNumbers = new int[4];
 
         protected string excercise = "";
+
+        protected GamesBase gameBase = new GamesBase("Podstawy Liczb", "Gry");
         protected override void OnInitialized()
         {
             PrepareNewGame();

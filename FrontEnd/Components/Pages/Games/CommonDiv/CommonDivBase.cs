@@ -26,6 +26,7 @@ namespace FrontEnd.Components.Pages.Games.CommonDiv
         protected List<int> userNumbers2 = new List<int>();
 
         protected Euklides euklides = new Euklides();
+        protected GamesBase gameBase = new GamesBase("Ułamki", "Gry");
         protected override void OnInitialized()
         {
             PrepareNewGame();

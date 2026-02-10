@@ -46,7 +46,7 @@
             }else
             {
                 <label style="padding-left:10px; padding-bottom:5px">
-                    <button class="gamebtns" @onclick="WrongNumber">
+                    <button class="gamebtns" @onclick="gameBase.WrongAnswer">
                         <div class="frac">
                             <span>@wrongNumbers[i]</span>
                             <span class="symbol">/</span>
@@ -70,113 +70,42 @@
             }else
             {
                 <label style="padding-left:10px; padding-bottom:5px">
-                    <button class="gamebtns" @onclick="WrongNumber">@wrongNumbers[i]</button> 
+                    <button class="gamebtns" @onclick="gameBase.WrongAnswer">@wrongNumbers[i]</button>
                 </label>
             }
         }
     }
     <p style="height:5px"></p>
-    <p>@message</p>
+    <p>@gameBase.message</p>
     <p style="height:5px"></p>
-    <p>Wynik: @good / @all </p>
+    <p>Wynik: @gameBase.good / @gameBase.all </p>
 }else
 {
-        <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
-        <p style="height:10px"></p>
-        <h4>Twój wynik to: @good / @all </h4>
-
-        <p style="height:20px"></p>
-        <button class="backbtn" @onclick="GoBack">Cofnij</button>
+     <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
+     <p style="height:10px"></p>
+     <h4>Twój wynik to: @gameBase.good / @gameBase.all </h4>
 }
+<p style="height:50px"></p>
+<button class="backbtn" @onclick="GoBack">Cofnij</button>
 
-
-
-<!--<p>@theEnd</p>-->
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    int good = 0;
-    int all = 0;
-    private string message = "";
-    private string theEnd="";
 
     private async Task GoodNumber()
     {
-        good++;
-        all++;
-        message = "Dobrze!";
-        this.StateHasChanged();
-        if(all>=10)
+        await gameBase.GoodAnswer();
+        if (gameBase.all >= 10)
         {
-            theEnd = "Koniec gry!";
+            
             ready = false;
-            await Task.Delay(1500);
-            await UpdateUserScore();
-            message = "";
-            this.StateHasChanged();
+            await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);           
             return;
         }
 
-        await Task.Delay(1500);
         PrepareNewGame();
-        message = "";
 
-        this.StateHasChanged();
-
-    }
-    private async Task WrongNumber()
-    {
-        all++;
-        message = "Zła Odpowiedź! Spróbuj ponownie";
-        this.StateHasChanged();
-
-        await Task.Delay(1500);
-        //   PrepareNewGame();
-        message = "";
-        //  this.StateHasChanged();
-    }
-
-    private async Task UpdateUserScore()
-    {
-        var g = good;
-        var a = all;
-        string unit = "";
-        switch (type)
-        {
-            case "natural":
-                unit ="Liczby Naturalne";
-
-                break;
-            case "minus":
-                unit ="Liczby Całkowite";
-                break;
-
-            default:
-                unit = "Podstawy Liczb";
-                break;
-        }
-
-
-        var authenticationState = await authenticationStateTask;
-        string username = authenticationState.User.Identity.Name;
-        if (username != null)
-        {
-            var progrss = await userProgressService.GetProgressByAll(username, unit, "Gry");
-            if (progrss != null)
-            {
-                g += progrss.good;
-                a += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = unit, all = a, good = g };
-                await userProgressService.UpdateProgress(updated);
-
-            }
-            else
-            {
-                await userProgressService.AddProgressByName(username, unit, "Gry", good, all);
-            }
-
-        }
     }
 
 

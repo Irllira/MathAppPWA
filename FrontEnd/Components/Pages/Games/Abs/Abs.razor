@@ -1,5 +1,5 @@
 ﻿@page "/absoluteValue"
-@using DTO.DTOs
+
 @using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager NavManager
 
@@ -19,29 +19,26 @@
     </h2>
     <p style="height:5px"></p>
     <button class="confbtn" @onclick="Confirm">Potwierdź</button>
-    <p>@message</p>
+    <p>@gameBase.message</p>
     <p></p>
-    <p>Wynik: @good / @all </p>
+    <p>Wynik: @gameBase.good / @gameBase.all </p>
 }
 else
 {
     <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
     <p style="height:10px"></p>
-    <h4>Twój wynik to: @good / @all </h4>
+    <h4>Twój wynik to: @gameBase.good / @gameBase.all </h4>
 
-    <p style="height:20px"></p>
-    <button class="backbtn" @onclick="GoBack">Cofnij</button>
+   
 }
+<p style="height:50px"></p>
+<button class="backbtn" @onclick="GoBack">Cofnij</button>
 
 
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    int good = 0;
-    int all = 0;
-    private string message = "";
-    private string theEnd = "";
     private int UserAnwser;
 
 
@@ -49,48 +46,22 @@ else
     {
         if (UserAnwser == correctNumber)
         {
-            await GoodNumber();
+            await gameBase.GoodAnswer();
+            if (gameBase.all>10)
+            {
+                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
+                ready = false;
+            }
+            PrepareNewGame();
+            UserAnwser = 0;
         }
         else
         {
-            await WrongNumber();
+            await gameBase.WrongAnswer();
         }
     }
 
-    private async Task GoodNumber()
-    {
-        good++;
-        all++;
-        message = "Dobrze!";
-        this.StateHasChanged();
-        if (all >= 10)
-        {
-            theEnd = "Koniec gry!";
-            ready = false;
-            await Task.Delay(1500);
-            await UpdateUserScore();
-            message = "";
-            this.StateHasChanged();
-            return;
-        }
-
-        await Task.Delay(1500);
-        PrepareNewGame();
-        message = "";
-        UserAnwser = 0;
-        this.StateHasChanged();
-
-    }
-    private async Task WrongNumber()
-    {
-        all++;
-        message = "Zła Odpowiedź! Spróbuj ponownie";
-        this.StateHasChanged();
-
-        await Task.Delay(1500);
-        message = "";
-    
-    }
+   
 
     public async Task Enter(KeyboardEventArgs e)
     {
@@ -100,34 +71,13 @@ else
             await Confirm();
         }
     }
-    private async Task UpdateUserScore()
+   
+
+
+    private async Task GoBack()
     {
-        var g = good;
-        var a = all;
-        var authenticationState = await authenticationStateTask;
-        string username = authenticationState.User.Identity.Name;
-        if (username != null)
-        {
-            var progrss = await userProgressService.GetProgressByAll(username, "Liczby Całkowite", "Gry");
-            if (progrss != null)
-            {
-                g += progrss.good;
-                a += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Liczby Całkowite", all = a, good = g };
-                await userProgressService.UpdateProgress(updated);
+        await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
 
-            }
-            else
-            {
-                await userProgressService.AddProgressByName(username, "Liczby Całkowite", "Gry", good, all);
-            }
-
-        }
-    }
-
-
-    private void GoBack()
-    {
         NavManager.NavigateTo("ChooseGame/uname/Liczby Całkowite");
     }
 }

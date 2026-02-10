@@ -1,7 +1,9 @@
 ﻿using DTO.DTOs;
+using FrontEnd.Components.Classes;
 using FrontEnd.Components.Services;
 using FrontEnd.Components.Services.Contracts;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,8 +20,12 @@ namespace FrontEnd.Components.Pages.Games.Theory
         [Inject]
         protected IUserProgressService userProgressService { get; set; }
 
+         
+
         [Parameter]
-        public static string Unit { get; set; }
+        public string Unit { get; set; }
+
+        protected GamesBase gamesBase;
 
         public List<DefinitionDTO> Definitions { get; set; } = new List<DefinitionDTO>();
 
@@ -34,6 +40,8 @@ namespace FrontEnd.Components.Pages.Games.Theory
         public string imgName = "";
         protected override async Task OnInitializedAsync()
         {
+            gamesBase = new GamesBase(Unit, "Teoria");
+
             var defs = await definitionService.GetDefinitionsByUnit(Unit);
             foreach (var def in defs)
             {
@@ -53,7 +61,6 @@ namespace FrontEnd.Components.Pages.Games.Theory
                 ready = false;
                 error = true;
             }
-
         }
         protected async Task PrepareNew()
         {
@@ -76,7 +83,6 @@ namespace FrontEnd.Components.Pages.Games.Theory
          
             await FillIncorrects(currentDef.ID);
             ready = true;
-            usedDefinitions.Add(currentDef.ID);
         }
         protected async Task FillIncorrects(int defID)
         {

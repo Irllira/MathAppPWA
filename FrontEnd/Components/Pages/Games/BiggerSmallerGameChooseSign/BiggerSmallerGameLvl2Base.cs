@@ -1,4 +1,5 @@
-﻿using FrontEnd.Components.Services.Contracts;
+﻿using FrontEnd.Components.Classes;
+using FrontEnd.Components.Services.Contracts;
 using Microsoft.AspNetCore.Components;
 
 
@@ -19,11 +20,27 @@ namespace FrontEnd.Components.Pages.Games.BiggerSmallerGameChooseSign
         protected string anwser = "";
         protected List<string> wrongAnwser = new List<string>() { ">","<","=" };
 
-
+        protected GamesBase gameBase = new GamesBase("Podstawy Liczb", "Gry");
         protected int excerciseNumberDen1;
         protected int excerciseNumberDen2;
         protected override void OnInitialized()
         {
+            string unitName = "";
+            switch (type)
+            {
+                case "natural":
+                    unitName = "Liczby Naturalne";
+                    break;
+                case "minus":
+                    unitName = "Liczby Całkowite";
+                    break;
+
+                default:
+                    unitName = "Podstawy Liczb";
+                    break;
+            }
+            gameBase = new GamesBase(unitName, "Gry");
+
             PrepareNewGame();
             ready = true;
         }

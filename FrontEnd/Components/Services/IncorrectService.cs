@@ -48,7 +48,6 @@ namespace FrontEnd.Components.Services
 
         public async Task<IncorrectDTO> GetIncorrectByContent(string content)
         {
-         //   var c = System.Web.HttpUtility.UrlEncode(content);
             string s = "/api/Incorrect/ByContent/"+content;
 
             var response = await _httpClient.GetAsync(s);

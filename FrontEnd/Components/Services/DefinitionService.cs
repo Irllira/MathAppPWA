@@ -37,7 +37,6 @@ namespace FrontEnd.Components.Services
                 return true;
             }
             return false;
-            //return await response.Content.ReadFromJsonAsync<IEnumerable<AccountsDTO>>();
         }
 
         public async Task DeleteDefinition(DefinitionDTO definition)

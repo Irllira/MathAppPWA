@@ -26,6 +26,7 @@ namespace FrontEnd.Components.Pages.Games.Brackets
         protected Euklides euklides = new Euklides();
 
         protected string excercise="";
+        protected GamesBase gameBase = new GamesBase("Wyrażenia algebraiczne", "Gry");
         protected override void OnInitialized()
         {
             PrepareNewGame();
@@ -37,10 +38,6 @@ namespace FrontEnd.Components.Pages.Games.Brackets
             part = "first";
             Random rnd= new Random();
             symbol = rnd.Next(0, 2);
-
-           
-
-            // modifier = rnd.Next(2, 10);
 
 
             if (type == "from")

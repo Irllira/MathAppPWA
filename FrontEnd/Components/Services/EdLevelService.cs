@@ -13,10 +13,7 @@ namespace FrontEnd.Components.Services
         }
         public async Task<IEnumerable<EducationLevelDTO>> GetEducationLevels()
         {
-            //   throw new NotImplementedException();
-
             var response = await _httpClient.GetAsync($"/api/EducationLevel");
-            // var x = response.Content.
 
             return await response.Content.ReadFromJsonAsync<IEnumerable<EducationLevelDTO>>();
         }

@@ -25,14 +25,17 @@
                   <button class="btn btn-primary" @onclick="GoodFirst">@modifier</button> <label style="padding-left:20px"></label>
                }else
                {
-                   <button class="btn btn-primary" @onclick ="WrongNumber">@wrongAnwsers[j]</button> <label style="padding-left:20px"></label>
+                   <button class="btn btn-primary" @onclick ="gameBase.WrongAnswer">@wrongAnwsers[j]</button> <label style="padding-left:20px"></label>
                    j++;
                }
             }
             <p style="height:5px"></p>
-            <p>@message</p>
+            <p>@gameBase.message</p>
             <p style="height:5px"></p>
-            <p>Wynik: @good / @all </p>
+            <p>Wynik: @gameBase.good / @gameBase.all </p>
+            
+            <p style="height:50px"></p>
+            <button class="backbtn" @onclick="GoBack">Cofnij</button>
         }else
         {
             <left>
@@ -44,9 +47,12 @@
             <button class="confbtn" @onclick="Confirm">Potwierdź</button> <p></p>
             <button class="helpbtn" @onclick="ShowHelp"> Pomoc </button>
             <p style="height:5px"></p>
-            <p>@message</p>
+            <p>@gameBase.message</p>
             <p style="height:5px"></p>
-            <p>Wynik: @good / @all </p>
+            <p>Wynik: @gameBase.good / @gameBase.all </p>
+            
+            <p style="height:50px"></p>
+            <button class="backbtn" @onclick="GoBack">Cofnij</button>
             </left>
         }
         
@@ -77,9 +83,12 @@
             <button class="helpbtn" @onclick="ShowHelp"> Pomoc </button>
 
             <p style="height:5px"></p>
-            <p>@message</p>
+            <p>@gameBase.message</p>
             <p style="height:5px"></p>
-            <p>Wynik: @good / @all </p>
+            <p>Wynik: @gameBase.good / @gameBase.all </p>
+            
+            <p style="height:50px"></p>
+            <button class="backbtn" @onclick="GoBack">Cofnij</button>
         </left>
          <right>
             <p style="height:50px"></p>
@@ -117,9 +126,9 @@
 {
         <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
         <p style="height:10px"></p>
-        <h4>Twój wynik to: @good / @all </h4>
+        <h4>Twój wynik to: @gameBase.good / @gameBase.all </h4>
 
-        <p style="height:20px"></p>
+        <p style="height:50px"></p>
         <button class="backbtn" @onclick="GoBack">Cofnij</button>
 }
 
@@ -129,10 +138,6 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    int good = 0;
-    int all = 0;
-    private string message = "";
-    private string theEnd = "";
     private string userInput1 = "";
     private string userInput2 = "";
     protected int hint1=0;
@@ -149,7 +154,7 @@
         {
             if (userInput1 == excerciseNumber1 / modifier + "" && userInput2 == excerciseNumber2 / modifier + "")
             {
-                await GoodNumber();
+                await gameBase.GoodAnswer();
             }
             else
             {
@@ -157,7 +162,7 @@
                     hint1++;
                 if (userInput2 != excerciseNumber2 / modifier + "")
                     hint2++;
-                await WrongNumber();
+                await gameBase.WrongAnswer();
             }
         }
         else
@@ -165,7 +170,23 @@
             var checkSym = CheckSymbol();
             if (userInput1 == excerciseNumber1 * modifier + "" && userInput2 == Math.Abs(excerciseNumber2 * modifier) + "" &&  checkSym== true)
             {
-                await GoodNumber();
+                await gameBase.GoodAnswer();
+                PrepareNewGame();
+                hint1 = 0;
+                hint2 = 0;
+                hint3 = 0;
+                userInput1 = "";
+                userInput2 = "";
+                userSymb = "";
+                ShowHint = false;
+
+                if (gameBase.all >= 10)
+                {
+                    ready = false;
+                    await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
+                    this.StateHasChanged();
+                    return;
+                }
             }
             else
             {
@@ -175,65 +196,24 @@
                     hint2++;
                 if (checkSym == false)
                     hint3++;
-                await WrongNumber();
+                await gameBase.WrongAnswer();
             }
         }
     }
 
     private async Task GoodFirst()
     {
-        message = "Dobrze! Teraz wyciągnij tę liczbę przed nawias!";
+        gameBase.message = "Dobrze! Teraz wyciągnij tę liczbę przed nawias!";
         await Task.Delay(1000);
 
         part = "final";
-        message = "";
+        gameBase.message = "";
         ShowHint = false;
     }
 
 
-    private async Task GoodNumber()
-    {
-        good++;
-        all++;
-        message = "Dobrze!";
-        this.StateHasChanged();
-        if (all >= 10)
-        {
-            theEnd = "Koniec gry!";
-            ready = false;
-            await Task.Delay(1500);
-            await UpdateUserScore();
-            message = "";
-            this.StateHasChanged();
-            return;
-        }
-
-        await Task.Delay(1500);
-        PrepareNewGame();
-        message = "";
-        hint1 = 0;
-        hint2 = 0;
-        hint3 = 0;
-        userInput1 = "";
-        userInput2 = "";
-        userSymb = "";
-        ShowHint = false;
-
-        this.StateHasChanged();
-
-    }
-    private async Task WrongNumber()
-    {
-        all++;
-        message = "Zła Odpowiedź! Spróbuj ponownie";
-        this.StateHasChanged();
-
-        await Task.Delay(1500);
-        message = "";
-    }
     private bool CheckSymbol()
     {
-        //var s = false;
         if(modifier*excerciseNumber1>0 && sym==userSymb[0])
         {
             return true;
@@ -257,32 +237,16 @@
 
     private void ShowHelp()
     {
-        ShowHint = true;
-    }
-    private async Task UpdateUserScore()
-    {
-        var g = good;
-        var a = all;
-        var authenticationState = await authenticationStateTask;
-        string username = authenticationState.User.Identity.Name;
-        if (username != null)
+        if (ShowHint == true)
         {
-            var progrss = await userProgressService.GetProgressByAll(username, "Wyrażenia algebraiczne", "Gry");
-            if (progrss != null)
-            {
-                g += progrss.good;
-                a += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Wyrażenia algebraiczne", all = a, good = g };
-                await userProgressService.UpdateProgress(updated);
-
-            }
-            else
-            {
-                await userProgressService.AddProgressByName(username, "Wyrażenia algebraiczne", "Gry", good, all);
-            }
-
+            ShowHint = false;
+        }
+        else
+        {
+            ShowHint = true;
         }
     }
+   
     
     private void GoBack()
     {

@@ -1,36 +1,34 @@
 ﻿@page "/Theory/{Unit}"
 
-@rendermode InteractiveServer
-@using DTO.DTOs
 @using FrontEnd.Components.Classes
-@using Microsoft.AspNetCore.Components.Authorization
 @inject NavigationManager NavManager
+
+@rendermode InteractiveServer
 @inherits TheoryBase;
 
 
-@if (ready == true && usedDefinitions.Count != Definitions.Count)
-if (Definitions.Count!=0 && currentDef!=null)
+@if (ready == true )
 {
-    Random rnd = new Random();
-  
-    <h1 style="text-align:center">Wybierz poprawną odpowiedź</h1>
-    <p style="height:10px"></p>
-
-    if(currentDef.type=="Img")
+    if (Definitions.Count!=0 && currentDef!=null && gamesBase!=null)
     {
+        Random rnd = new Random();
+  
+        <h1 style="text-align:center">Wybierz poprawną odpowiedź</h1>
+        <p style="height:10px"></p>
 
-        <p style="font-size:20px">@currentDef.part1:</p>
-
-        if ( imgName != ""){
-            var imgsource = "/Assets/"+imgName;
-            <img src="@imgsource"  />
-            <p></p>
-        }
-
-        int correct = rnd.Next(0, incorrects.Count() + 1);
-        var j = 0;
-        for (int i = 0; i < incorrects.Count() + 1; i++)
+        if(currentDef.type=="Img")
         {
+            <p style="font-size:20px">@currentDef.part1:</p>
+
+            if ( imgName != ""){
+                var imgsource = "/Assets/"+imgName;
+                <img src="@imgsource"  />
+                <p></p>
+            }
+            int correct = rnd.Next(0, incorrects.Count() + 1);
+            var j = 0;
+            for (int i = 0; i < incorrects.Count() + 1; i++)
+            {
                 if (i == correct)
                 {
                     string s = currentDef.part2;
@@ -41,7 +39,8 @@ if (Definitions.Count!=0 && currentDef!=null)
                         var imgs = "/Assets/" + img[1];
 
                         <label style="padding-left:10px;padding-top:5px">
-                            <button class="gamebtns" @onclick="GoodNumber">@s
+                            <button class="gamebtns" @onclick="GoodNumber">
+                                @s
                                 <img src="@imgs" style="height:150px;width:150px" />
                             </button>
                         </label>
@@ -61,144 +60,100 @@ if (Definitions.Count!=0 && currentDef!=null)
                         var imgs = "/Assets/" + img[1];
 
                         <label style="padding-left:10px;padding-top:5px">
-                            <button class="gamebtns" @onclick="WrongNumber">@s <img src="@imgs" style="height:150px;width:150px" /></button>
+                            <button class="gamebtns" @onclick="gamesBase.WrongAnswer">@s <img src="@imgs" style="height:150px;width:150px" /></button>
                         </label>
                     }else
                     {
-                        <label style="padding-left:10px;padding-top:5px"> <button class="gamebtns" @onclick="WrongNumber">@s</button></label>
+                        <label style="padding-left:10px;padding-top:5px"> <button class="gamebtns" @onclick="gamesBase.WrongAnswer">@s</button></label>
                     }
                     j++;
                 }
+            }
+        }else
+        {
+            <p style="font-size:20px">@currentDef.part1:</p>
+            <p style="height:10px"></p>
+
+            int correct = rnd.Next(0, incorrects.Count()+1);
+            var j = 0;
+            for(int i=0;i<incorrects.Count()+1;i++)
+            {
+                if(i==correct)
+                {
+                    string s = currentDef.part2;
+                    <label style="padding-left:10px;padding-top:5px"> <button class="gamebtns" @onclick="GoodNumber">@s</button> </label>
+                }else
+                {
+                    <label style="padding-left:10px;padding-top:5px"> <button class="gamebtns" @onclick="gamesBase.WrongAnswer">@incorrects[j].content</button></label>
+                    j++;
+                }
+            }   
         }
+        <p style="height:10px"></p>
+        <p>@gamesBase.message</p>
+        <p style="height:10px"></p>
+        <p>Wynik: @gamesBase.good / @gamesBase.all </p>
+
     }else
     {
-        <p style="font-size:20px">@currentDef.part1:</p>
-        <p style="height:10px"></p>
-
-        int correct = rnd.Next(0, incorrects.Count()+1);
-        var j = 0;
-        for(int i=0;i<incorrects.Count()+1;i++)
-        {
-            if(i==correct)
-            {
-                string s = currentDef.part2;
-                    <label style="padding-left:10px;padding-top:5px"> <button class="gamebtns" @onclick="GoodNumber">@s</button> </label>
-            }
-            else
-            {
-                    <label style="padding-left:10px;padding-top:5px"> <button class="gamebtns" @onclick="WrongNumber">@incorrects[j].content</button></label>
-                j++;
-            }
-        }
-    }
-    
-    <p style="height:10px"></p>
-    <p>@message</p>
-    <p style="height:10px"></p>
-    <p>Wynik: @good / @all </p>
-
-}else
-{
         <p><i>Ładowanie...</i></p>
-}
+    }
 }else
 {
-    if (error == false || usedDefinitions.Count == Definitions.Count)
+    if (gamesBase != null && error == false )
+    {
         <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
         <p style="height:10px"></p>
-      
-        <p>Twój wynik to: @good / @all </p>
-    
-  <!--  <button class="confbtn" @onclick="Next">Następny</button>-->
+        <p>Twój wynik to: @gamesBase.good / @gamesBase.all </p>
 
-        <p style="height:20px"></p>
-        <button class="gamebtns" @onclick="GoBack">Powrót</button>
     }else
     {
         <h2 style="text-align:center"><b>Ten dział nie ma na razie ćwiczeń teorii</b></h2>
         <p style="height:10px"></p>
   
-         <h4 style="text-align:center"><b>Przepraszamy za problemy</b></h4>
-
-        <p style="height:20px"></p>
-        <button class="gamebtns" @onclick="GoBack">Powrót</button>
+        <h4 style="text-align:center"><b>Przepraszamy za problemy</b></h4>
     }
 }
+<p style="height:50px"></p>
+<button class="backbtn" @onclick="GoBack"> Powrót </button>
 
 
-@code {
-    GamesBase gamesBase = new GamesBase(Unit, "Teoria");
-
-
+@code
+{
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-
-    int good = 0;
-    int all = 0;
-    private string message = "";
-
     private async Task GoodNumber()
     {
-        good++;
-        all++;
-        message = "Dobrze!";
-        //this.StateHasChanged();
-        if(all>=10 || usedDefinitions.Count==Definitions.Count)
+        if (currentDef != null)
+            usedDefinitions.Add(currentDef.ID);
+
+        await gamesBase.GoodAnswer();
+
+        if (gamesBase.all >= 10 || usedDefinitions.Count == Definitions.Count)
         {
             ready = false;
-            await Task.Delay(500);
-            await UpdateUserScore();
-            message = "";
-            this.StateHasChanged();
+            await gamesBase.UpdateUserScore(authenticationStateTask,userProgressService);
             return;
+        }
+        else
+        {
+            await PrepareNew();
+        }
+    }
+
+    private async Task GoBack()
+    {
+        gamesBase.message = "Powrót";
+        if(error!=false)
+        {
+            await gamesBase.UpdateUserScore(authenticationStateTask, userProgressService);
+
         }
 
         await Task.Delay(500);
-        await PrepareNew();
-        message = "";
-
-        this.StateHasChanged();
-
-    }
-    private async Task WrongNumber()
-    {
-        all++;
-        message = "Zła Odpowiedź! Spróbuj ponownie";
-        this.StateHasChanged();
-
-        await Task.Delay(1500);
-        //   PrepareNewGame();
-        message = "";
-        //  this.StateHasChanged();
+        NavManager.NavigateTo("ChooseGame/uname/"+Unit);
     }
 
-    private async Task UpdateUserScore()
-    {
-        var g = good;
-        var a = all;
-        var authenticationState = await authenticationStateTask;
-        string username = authenticationState.User.Identity.Name;
-        if (username != null)
-        {
-            var progrss = await userProgressService.GetProgressByAll(username, Unit, "Teoria");
-            if(progrss!=null)
-            {
-                g += progrss.good;
-                a += progrss.all;
-                var updated=new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Teoria", unitName = Unit, all = a, good = g};
-                await userProgressService.UpdateProgress(updated);
-
-            }else
-            {
-                await userProgressService.AddProgressByName(username, Unit, "Teoria", good, all);
-            }
-
-        }
-    }
-
-    private void GoBack()
-    {
-        NavManager.NavigateTo("ChooseGame/uname/" + Unit);
-    }
 }
+

@@ -10,7 +10,6 @@ namespace MathApp.Enteties
 
         }
 
-        //private string _connectionString= "Server=desktop-2hi6019;Database=MathApp;User Id= DESKTOP-2HI6019\\poczt;Trusted_Connection=True; TrustServerCertificate=True";
         public DbSet<Account> Accounts { get; set; }
         public DbSet<Definition> Definitions { get; set; }
         public DbSet<Unit> Units { get; set; }
@@ -28,14 +27,7 @@ namespace MathApp.Enteties
             modelBuilder.Entity<Account>().Property(r => r.Username).IsRequired();
             modelBuilder.Entity<Account>().Property(r => r.Password).IsRequired();
 
-//            modelBuilder.Entity<DefIncPair>().HasOne(v=>v.IncorrectDefinition).WithMany().HasForeignKey(v => v.IncorrectDefinitionId);       //.Property(r => r.IncorrectDefinitionId)
 
         }
-
-        // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        //  {
-        //    optionsBuilder.UseSqlServer(_connectionString);
-
-        // }
     }
 }

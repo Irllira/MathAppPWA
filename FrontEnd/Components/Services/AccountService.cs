@@ -18,29 +18,24 @@ namespace FrontEnd.Components.Services
         {
             string s = "/api/Accounts/AddAccount";
             var response = await _httpClient.PostAsJsonAsync(s,account);
-            //_httpClient.
             if (response.IsSuccessStatusCode == true)
             {
                 return true;
             }
             return false;
-            //return await response.Content.ReadFromJsonAsync<IEnumerable<AccountsDTO>>();
         }
 
         public async Task<IEnumerable<AccountsDTO>> GetAccounts()
         {
 
             var response = await _httpClient.GetAsync($"/api/Accounts");
-            // var x = response.Content.
 
             return await response.Content.ReadFromJsonAsync<IEnumerable<AccountsDTO>>();
         }
 
         public async Task<IEnumerable<AccountsPasswordsDTO>> GetAccountsPasswords()
         {
-
             var response = await _httpClient.GetAsync($"/api/Accounts/Login");
-            // var x = response.Content.
 
             return await response.Content.ReadFromJsonAsync<IEnumerable<AccountsPasswordsDTO>>();
         }
@@ -49,7 +44,6 @@ namespace FrontEnd.Components.Services
         {
             string s = "/api/Accounts/AccountByName/" + name;
             var response = await _httpClient.GetAsync(s);
-            // var x = response.Content.
             if (response.IsSuccessStatusCode == true)
             {
                 return await response.Content.ReadFromJsonAsync<AccountsPasswordsDTO>();
@@ -61,7 +55,6 @@ namespace FrontEnd.Components.Services
         {
             string s = "/api/Accounts/AccountAdminByName/" + name;
             var response = await _httpClient.GetAsync(s);
-            // var x = response.Content.
             if (response.IsSuccessStatusCode == true)
             {
                 return await response.Content.ReadFromJsonAsync<AccountsDTO>();
@@ -72,7 +65,6 @@ namespace FrontEnd.Components.Services
         {
             string s = "/api/Accounts/AccountAdminByEmail/" + email;
             var response = await _httpClient.GetAsync(s);
-            // var x = response.Content.
             if (response.IsSuccessStatusCode == true)
             {
                 return await response.Content.ReadFromJsonAsync<AccountsDTO>();

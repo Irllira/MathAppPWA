@@ -25,10 +25,26 @@ namespace FrontEnd.Components.Pages.Games.BiggerSmallerGame
         protected string excercise = "";
         int max = 0;
         int min = 0;
-
+        protected GamesBase gameBase = new GamesBase("Podstawy Liczb", "Gry");
         protected Euklides euklides = new Euklides();
         protected override void OnInitialized()
         {
+            string unitName = "";
+            switch (type)
+            {
+                case "natural":
+                   unitName="/Liczby Naturalne";
+
+                    break;
+                case "minus":
+                    unitName="Liczby Całkowite";
+                    break;
+
+                default:
+                    unitName ="Podstawy Liczb";
+                    break;
+            }
+            gameBase = new GamesBase(unitName,"Gry");
             PrepareNewGame();
             ready = true;
         }

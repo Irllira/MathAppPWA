@@ -1,5 +1,6 @@
 ﻿@page "/BracketMulti"
 @using DTO.DTOs
+@using FrontEnd.Components.Classes
 @using Microsoft.AspNetCore.Components.Authorization
 @inherits BracketsMultiplyBase;
 @inject NavigationManager NavManager
@@ -8,40 +9,42 @@
 
 @if(ready==true)
 {
-    
    <h1 style="text-align:center">Którą Liczbę można wyciągnąć przed nawias </h1>
    <p style="height:10px"></p>
-    <left>
-   <h2><b> @excercise =
-   </b></h2>
-   <h2><b>
+   <left>
+        <h2><b> 
+            @excercise =
+        </b></h2>
+        <h2><b>
             <InputText @bind-Value="userInput[0]" style="width:50px; font-size:20px"/> x<sup>2</sup>
             <InputText @bind-Value="userSymbols[0]" style="width:30px; font-size:15px" /> <InputText @bind-Value="userInput[1]" style="width:50px; font-size:20px" />  x
             <InputText @bind-Value="userSymbols[1]" style="width:30px; font-size:15px" /> <InputText @bind-Value="userInput[2]" style="width:50px; font-size:20px" />  x
             <InputText @bind-Value="userSymbols[2]" style="width:30px; font-size:15px" /> <InputText @bind-Value="userInput[3]" style="width:50px; font-size:20px" />
-        =     
-   </b> </h2>
-    <h2><b>
-         =
+            =     
+        </b> </h2>
+        <h2><b>
+            =
             <InputText @bind-Value="userFinalInput[0]" style="width:50px; font-size:20px"/> x<sup>2</sup>
             <InputText @bind-Value="userFinalSymbols[0]" style="width:30px; font-size:15px" /> <InputText @bind-Value="userFinalInput[1]" style="width:50px; font-size:20px" />  x
             <InputText @bind-Value="userFinalSymbols[1]" style="width:30px; font-size:15px" /> <InputText @bind-Value="userFinalInput[2]" style="width:50px; font-size:20px" />
 
-    </b></h2>
-    <p style="height:10px"></p>
+        </b></h2>
+        <p style="height:10px"></p>
 
-    <button class="confbtn" @onclick="Confirm">Potwierdź</button>
-    <p></p>
-    <button class="helpbtn" @onclick="Help">Pomoc</button>
-    <p style="height:5px"></p>
-    <p>@message</p>  
-    <p style="height:5px"></p>
+        <button class="confbtn" @onclick="Confirm">Potwierdź</button>
+        <p></p>
+        <button class="helpbtn" @onclick="Help">Pomoc</button>
+        <p style="height:5px"></p>
+        <p>@message</p>  
+        <p style="height:5px"></p>
 
-    <p style="height:5px"></p>
+        <p style="height:5px"></p>
 
-    <p>Wynik: @good / @all </p>
+        <p>Wynik: @gameBase.good / @gameBase.all </p>
+        <p style="height:50px"></p>
+        <button class="backbtn" @onclick="GoBack">Cofnij</button>
     </left>
-    <right>
+   <right>
         @if(showHints==true){
             <h2>Pomoc: </h2>
             <h3>(Pamiętaj o symbolach)</h3>
@@ -105,12 +108,12 @@
     </right>
 }else
 {
-        <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
-        <p style="height:10px"></p>
-        <h4>Twój wynik to: @good / @all </h4>
+    <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
+    <p style="height:10px"></p>
+    <h4>Twój wynik to: @gameBase.good / @gameBase.all </h4>
 
-        <p style="height:20px"></p>
-        <button class="backbtn" @onclick="GoBack">Cofnij</button>
+    <p style="height:50px"></p>
+    <button class="backbtn" @onclick="GoBack">Cofnij</button>
 }
 
 
@@ -119,10 +122,9 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    int good = 0;
-    int all = 0;
+    private GamesBase gameBase = new GamesBase("Wyrażenia algebraiczne", "Gry");
+
     private string message = "";
-    private string theEnd = "";
     private string[] userInput = ["", "", "", ""];
     private string[] userSymbols = ["", "", ""];
 
@@ -136,57 +138,30 @@
     {
         if (userFinalInput[0] == FinalNumbers[0] + "" && userFinalInput[1] == Math.Abs(FinalNumbers[1]) + "" && userFinalInput[2] == Math.Abs(FinalNumbers[2]) + "" && CheckFinalSymbol() == true)
         {
-            await GoodNumber();
+            await gameBase.GoodAnswer();
+            if (gameBase.all >= 10)
+            {
+                ready = false;
+                await Task.Delay(1500);
+                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
+            }else
+            {
+                PrepareNewGame();
+                userInput = ["", "", "", ""];
+                userSymbols = ["", "", ""];
+                userFinalInput = ["", "", ""];
+                userFinalSymbols = ["", ""];
+                hints = ["", "", ""];
+                showHints = false;
+            }
         }
         else
         {
-            await WrongNumber();
+            await gameBase.WrongAnswer();
+            CheckHints();
         }
 
     }
-
-
-    private async Task GoodNumber()
-    {
-        good++;
-        all++;
-        message = "Dobrze!";
-        this.StateHasChanged();
-        if (all >= 10)
-        {
-            theEnd = "Koniec gry!";
-            ready = false;
-            await Task.Delay(1500);
-            await UpdateUserScore();
-            message = "";
-            this.StateHasChanged();
-            return;
-        }
-
-        await Task.Delay(1500);
-        PrepareNewGame();
-        message = "";
-
-        userInput =[ "","","",""];
-        userSymbols = ["", "", ""];
-        userFinalInput = ["", "", ""];
-        userFinalSymbols = ["", ""];
-        hints = ["", "", ""];
-
-        this.StateHasChanged();
-
-    }
-    private async Task WrongNumber()
-    {
-        all++;
-        CheckHints();
-        message = "Zła Odpowiedź! Spróbuj ponownie";
-        this.StateHasChanged();
-
-        await Task.Delay(1500);
-        message = "";
-    }
-  
 
     private void CheckHints()
     {
@@ -222,77 +197,6 @@
 
     private bool CheckSymbol()
     {
-        /* var normal = true;
-        if (userInput[1] == excercise[1] * excercise[2]+"")
-            normal = false;
-
-        //var s = false;
-        if(symbols[0]=='+')
-        {
-            if(normal==true && userSymbols[0][0]!='+')
-            {
-                return false;
-                }
-            if (normal == false && userSymbols[1][0] != '+')
-            {
-                return false;
-                }
-            if(symbols[1]=='+')
-            {
-                if (normal == true && userSymbols[0][0] != '+')
-                {
-                    return false;
-                    }
-                if (normal == false && userSymbols[1][0] != '+')
-                {
-                    return false;
-                    }
-                }else
-            {
-                if (normal == true && userSymbols[0][0] != '-')
-                {
-                    return false;
-                    }
-                if (normal == false && userSymbols[1][0] != '-')
-                {
-                    return false;
-                    }
-                }
-            }else
-        {
-            if (normal == true && symbols[0] == '-' && userSymbols[0][0] != '-')
-            {
-                return false;
-                }
-            if (normal == false && userSymbols[1][0] != '-')
-            {
-                return false;
-                }
-            if (symbols[1] == '+')
-            {
-                if (normal == true && userSymbols[0][0] != '-')
-                {
-                    return false;
-                    }
-                if (normal == false && userSymbols[1][0] != '-')
-                {
-                    return false;
-                    }
-                }
-            else
-            {
-                if (normal == true && userSymbols[0][0] != '+')
-                {
-                    return false;
-                    }
-                if (normal == false && userSymbols[1][0] != '+')
-                {
-                    return false;
-                    }
-                }
-            }
-
-        return true;*/
         for (int i = 0; i < userSymbols.Length; i++)
         {
             if (userSymbols[i].Length == 0)
@@ -324,36 +228,20 @@
 
     private void Help()
     {
-        showHints = true;
+        if (showHints == false)
+        {
+            showHints = true;
+        }else
+        {
+            showHints = false;
+        }
     }  
     
-    private async Task UpdateUserScore()
+  
+    private async Task GoBack()
     {
-        var g = good;
-        var a = all;
-        var authenticationState = await authenticationStateTask;
-        string username = authenticationState.User.Identity.Name;
-        if (username != null)
-        {
-            var progrss = await userProgressService.GetProgressByAll(username, "Wyrażenia algebraiczne", "Gry");
-            if (progrss != null)
-            {
-                g += progrss.good;
-                a += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Wyrażenia algebraiczne", all = a, good = g };
-                await userProgressService.UpdateProgress(updated);
+        await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
 
-            }
-            else
-            {
-                await userProgressService.AddProgressByName(username, "Wyrażenia algebraiczne", "Gry", good, all);
-            }
-
-        }
-    }
-
-    private void GoBack()
-    {
         NavManager.NavigateTo("ChooseGame/uname/Wyrażenia algebraiczne");
     }
 }
