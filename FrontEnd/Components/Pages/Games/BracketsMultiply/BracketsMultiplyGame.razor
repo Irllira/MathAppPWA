@@ -1,11 +1,12 @@
 ﻿@page "/BracketMulti"
 @using DTO.DTOs
-@using FrontEnd.Components.Classes
+@using global::FrontEnd.Components.Classes
 @using Microsoft.AspNetCore.Components.Authorization
-@inherits BracketsMultiplyBase;
+@using global::FrontEnd.Components.Pages.Games.BracketsMultiply
 @inject NavigationManager NavManager
 @rendermode InteractiveServer
 
+@inherits BracketsMultiplyBase;
 
 @if(ready==true)
 {

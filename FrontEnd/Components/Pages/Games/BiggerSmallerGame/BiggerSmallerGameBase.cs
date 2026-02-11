@@ -1,5 +1,6 @@
 ﻿using FrontEnd.Components.Classes;
 using FrontEnd.Components.Services.Contracts;
+using MathApp.FrontEnd.Components.Classes;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontEnd.Components.Pages.Games.BiggerSmallerGame
@@ -247,11 +248,11 @@ namespace FrontEnd.Components.Pages.Games.BiggerSmallerGame
         protected void FillTheWrongAnswersFractions()
         {
             Random rnd = new Random();
-            int den = 0, nww = 0, multi = 0;
+            int nww = 0, multi = 0;
 
             for (int i = 0; i < 4; i++)
             {
-                den = rnd.GetItems(denominators, 1)[0];
+                int den = rnd.GetItems(denominators, 1)[0];
                 nww = euklides.NWW(den, excerciseNumberDen);
 
                 wrongNumbersDen[i] = nww;

@@ -1,4 +1,4 @@
-﻿namespace FrontEnd.Components.Classes
+﻿namespace MathApp.FrontEnd.Components.Classes
 {
     public class Euklides
     {

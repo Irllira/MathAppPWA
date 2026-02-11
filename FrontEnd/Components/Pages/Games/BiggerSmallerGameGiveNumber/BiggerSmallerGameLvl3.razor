@@ -1,10 +1,13 @@
-﻿@inherits BiggerSmallerLvl3Base
-<PageTitle>Większe Mniejsze</PageTitle>
-@page "/BiggerSmaller/GiveNumber/{type}"
+﻿@page "/BiggerSmaller/GiveNumber/{type}"
 @using DTO.DTOs
 @using Microsoft.AspNetCore.Components.Authorization
+@using global::FrontEnd.Components.Pages.Games.BiggerSmallerGameGiveNumber
 @inject NavigationManager NavManager
 @rendermode InteractiveServer
+
+@inherits BiggerSmallerLvl3Base
+
+<PageTitle>Większe Mniejsze</PageTitle>
 
 @if(ready==true){
     <h1 style="text-align:center">Podaj Poprawną Liczbę </h1>

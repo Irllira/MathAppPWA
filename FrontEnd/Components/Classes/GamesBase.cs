@@ -42,6 +42,9 @@ namespace FrontEnd.Components.Classes
     
         public async Task UpdateUserScore(Task<AuthenticationState> authenticationStateTask, IUserProgressService userProgressService)
         {
+            if (all == 0)
+                return;
+
             var g = good;
             var a = all;
             var authenticationState = await authenticationStateTask;

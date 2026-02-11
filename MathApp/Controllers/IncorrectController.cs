@@ -43,7 +43,7 @@ namespace API.Controllers
                     var i = new IncorrectDTO()
                     {
                         Id = incor.Id,
-                        content = incor.content
+                        content = incor.Content
                     };
                     incorrectDTO.Add(i);
                 }
@@ -73,7 +73,7 @@ namespace API.Controllers
                 var incorrectDTO = new IncorrectDTO()
                 {
                     Id = incorrect.Id,
-                    content = incorrect.content
+                    content = incorrect.Content
                 };
 
 
@@ -107,7 +107,7 @@ namespace API.Controllers
                 var incorrectDTO = new IncorrectDTO()
                 {
                     Id = incorrect.Id,
-                    content = incorrect.content
+                    content = incorrect.Content
                 };
 
 
@@ -139,7 +139,7 @@ namespace API.Controllers
                     var i = new IncorrectDTO()
                     {
                         Id = incor.Id,
-                        content = incor.content.ToString()
+                        content = incor.Content.ToString()
                     };
                     incorrectDTO.Add(i);
                 }
@@ -159,7 +159,7 @@ namespace API.Controllers
         [HttpPost("NewIncorrect")]
         public async Task<ActionResult<IncorrectDTO>> AddIncorrect([FromBody] IncorrectDTO incorrect)
         {
-            var inc = new IncorrectDefinition() { content = incorrect.content };
+            var inc = new IncorrectDefinition() { Content = incorrect.content };
             await _incorrectRepo.AddIncorrect(inc);
 
             return CreatedAtAction(nameof(GetAllIncorrect), new { id = inc.Id }, inc);

@@ -37,8 +37,8 @@ namespace API.Controllers
                     {
                         Id = page.Id,
                         Name = page.Name,
-                        Description = page.Description,
-                        link = page.link,
+                        //Description = page.Description,
+                        link = page.Link,
                         UnitID = page.UnitID
                     };
                     pagesDTO.Add(pg);
@@ -71,8 +71,8 @@ namespace API.Controllers
                     {
                         Id = page.Id,
                         Name = page.Name,
-                        Description = page.Description,
-                        link = page.link,
+                       // Description = page.Description,
+                        link = page.Link,
                         UnitID = page.UnitID
                     };
                     pagesDTO.Add(pg);
@@ -89,7 +89,7 @@ namespace API.Controllers
         [HttpPost]
         public async Task<ActionResult<PagesDTO>> AddPage([FromBody] PagesDTO page)
         {
-            var p = new Pages() { link=page.link, Name = page.Name, UnitID = page.UnitID, Description=page.Description};
+            var p = new Pages() { Link=page.link, Name = page.Name, UnitID = page.UnitID};
             await _pagesRepo.AddPage(p);
             return CreatedAtAction(nameof(GetPages), new { id = p.Id }, p);
         }

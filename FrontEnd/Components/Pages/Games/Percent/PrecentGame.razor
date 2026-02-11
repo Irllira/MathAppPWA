@@ -1,6 +1,7 @@
 ﻿@page "/prec/{type}"
 @using DTO.DTOs
 @using Microsoft.AspNetCore.Components.Authorization
+@using global::FrontEnd.Components.Pages.Games.Percent
 @rendermode InteractiveServer
 @inherits PrecentBase;
 @inject NavigationManager NavManager
@@ -51,15 +52,15 @@
 
         <h2><b> X = </b>
         <div class="frac"> 
-            <span><InputNumber @bind-Value="userExcerciseNum2" @onkeydown="@Enter" style="width:60px;font-size:15px" /> * <InputNumber @bind-Value="userProcent" @onkeydown="@Enter" style="width:60px;font-size:15px" /></span>
+            <span><InputNumber @bind-Value="userExcerciseNum1" @onkeydown="@Enter" style="width:60px;font-size:15px" /> * <InputNumber @bind-Value="userProcent" @onkeydown="@Enter" style="width:60px;font-size:15px" /></span>
             <span class="symbol">/</span>
-            <span class="bottom"> <InputNumber @bind-Value="userExcerciseNum1" @onkeydown="@Enter" style="width:60px;font-size:15px" /></span> 
+            <span class="bottom"> <InputNumber @bind-Value="userExcerciseNum2" @onkeydown="@Enter" style="width:60px;font-size:15px" /></span> 
         </div>
          =
         <div class="frac"> 
             <span><InputNumber @bind-Value="userMiddle" @onkeydown="@Enter" style="width:60px;font-size:15px" /> </span>
             <span class="symbol">/</span>
-            <span class="bottom"> <InputNumber @bind-Value="userExcerciseNum1" @onkeydown="@Enter" style="width:60px;font-size:15px" /> </span> 
+            <span class="bottom"> <InputNumber @bind-Value="userExcerciseNum2" @onkeydown="@Enter" style="width:60px;font-size:15px" /> </span> 
         </div>
          =
         <InputNumber @bind-Value="userFinal" @onkeydown="@Enter" style="width:100px;font-size:30px"/>
@@ -219,7 +220,7 @@ else
             }
         }else
         {
-            if (((userExcerciseNum2 == excerciseNumber2 && userProcent == 100) || (userExcerciseNum2 == 100 && userProcent == excerciseNumber2)) && userExcerciseNum2 == excerciseNumber2)
+            if (((userExcerciseNum2 == excerciseNumber1 && userProcent == 100) || (userExcerciseNum2 == 100 && userProcent == excerciseNumber1)) && userExcerciseNum1 == excerciseNumber2)
             {
                 hint[0] = "Pierwsza równość poprawnie uzupełniona!";
                 if (userMiddle == excerciseNumber2 * 100)
@@ -248,9 +249,9 @@ else
                 else
                 {
                     hint[0] = "Poprawiono pierwszą równość";
-                    userExcerciseNum1 = excerciseNumber1;
-                    userProcent = procent;
-                    userProcentDen = 100;
+                    userExcerciseNum1 = Convert.ToInt32(excerciseNumber2);
+                    userProcent = 100;
+                    userExcerciseNum2 =  excerciseNumber1;
                 }
             }
         }
@@ -273,18 +274,18 @@ else
         string username = authenticationState.User.Identity.Name;
         if (username != null)
         {
-            var progrss = await userProgressService.GetProgressByAll(username, "Liczby Naturalne", "Gry");
+            var progrss = await userProgressService.GetProgressByAll(username, "Procenty", "Gry");
             if (progrss != null)
             {
                 g += progrss.good;
                 a += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Liczby Naturalne", all = a, good = g };
+                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Procenty", all = a, good = g };
                 await userProgressService.UpdateProgress(updated);
 
             }
             else
             {
-                await userProgressService.AddProgressByName(username, "Liczby Naturalne", "Gry", good, all);
+                await userProgressService.AddProgressByName(username, "Procenty", "Gry", good, all);
             }
 
         }

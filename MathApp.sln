@@ -3,11 +3,16 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36603.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "API", "MathApp\API.csproj", "{C9476ED7-9ECF-4392-9CC3-4E481CC8E55E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathApp.API", "MathApp\MathApp.API.csproj", "{C9476ED7-9ECF-4392-9CC3-4E481CC8E55E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9C18CE0D-EF36-412D-A109-99B8828A95E5} = {9C18CE0D-EF36-412D-A109-99B8828A95E5}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FrontEnd", "FrontEnd\FrontEnd.csproj", "{BD913D0A-7859-411F-8691-F52B33B29867}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathApp.FrontEnd", "FrontEnd\MathApp.FrontEnd.csproj", "{BD913D0A-7859-411F-8691-F52B33B29867}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DTO", "DTO\DTO.csproj", "{76AF69F0-C2D0-4EB1-85ED-CD2B3FC7D9CA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathApp.DTO", "DTO\MathApp.DTO.csproj", "{76AF69F0-C2D0-4EB1-85ED-CD2B3FC7D9CA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MathApp.Data", "MathApp.Data\MathApp.Data.csproj", "{9C18CE0D-EF36-412D-A109-99B8828A95E5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +32,10 @@ Global
 		{76AF69F0-C2D0-4EB1-85ED-CD2B3FC7D9CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76AF69F0-C2D0-4EB1-85ED-CD2B3FC7D9CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76AF69F0-C2D0-4EB1-85ED-CD2B3FC7D9CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C18CE0D-EF36-412D-A109-99B8828A95E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C18CE0D-EF36-412D-A109-99B8828A95E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C18CE0D-EF36-412D-A109-99B8828A95E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C18CE0D-EF36-412D-A109-99B8828A95E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

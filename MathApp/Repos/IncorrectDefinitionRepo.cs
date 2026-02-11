@@ -31,7 +31,7 @@ namespace API.Repos
             var incorrect = await _context.IncorrectDefinitions.ToListAsync();
             foreach(var inc in incorrect)
             {
-                if(inc.content==s)
+                if(inc.Content==s)
                 {
                     return inc;
                 }
@@ -74,7 +74,7 @@ namespace API.Repos
 
         public async Task AddIncorrect(string contents)
         {
-            await _context.IncorrectDefinitions.AddAsync(new IncorrectDefinition { content= contents });
+            await _context.IncorrectDefinitions.AddAsync(new IncorrectDefinition { Content= contents });
             await _context.SaveChangesAsync();
         }
         public async Task AddIncorrect(IncorrectDefinition def)

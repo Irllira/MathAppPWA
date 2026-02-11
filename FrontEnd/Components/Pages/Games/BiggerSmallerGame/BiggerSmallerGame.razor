@@ -1,6 +1,7 @@
 ﻿@page "/BiggerSmaller/{type}"
 @using DTO.DTOs
 @using Microsoft.AspNetCore.Components.Authorization
+@using global::FrontEnd.Components.Pages.Games.BiggerSmallerGame
 @rendermode InteractiveServer
 @inherits CountingUpDownBase;
 @inject NavigationManager NavManager
@@ -97,8 +98,7 @@
     {
         await gameBase.GoodAnswer();
         if (gameBase.all >= 10)
-        {
-            
+        {            
             ready = false;
             await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);           
             return;

@@ -43,8 +43,8 @@ namespace API.Repos
         {
             var pages = await _context.Pages.Where(pg => pg.Id == id).ExecuteUpdateAsync(setters => setters
             .SetProperty(pg => pg.Name, name)
-            .SetProperty(pg => pg.link, link)
-            .SetProperty(pg =>pg.Description, description)
+            .SetProperty(pg => pg.Link, link)
+         //   .SetProperty(pg =>pg.Description, description)
             .SetProperty(pg => pg.UnitID, unitId));
 
             await _context.SaveChangesAsync();

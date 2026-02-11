@@ -1,5 +1,6 @@
 ﻿using FrontEnd.Components.Classes;
 using FrontEnd.Components.Services.Contracts;
+using MathApp.FrontEnd.Components.Classes;
 using Microsoft.AspNetCore.Components;
 
 namespace FrontEnd.Components.Pages.Games.CommonDiv

@@ -1,11 +1,13 @@
 ﻿@page "/Log"
 
+@using global::FrontEnd.Components.Classes
+@using global::FrontEnd.Components.Pages.Login.Models
+@using global::FrontEnd.Components.Pages.Login
+
 @using System.Security.Claims
-@using FrontEnd.Components.Classes
-@using FrontEnd.Components.Pages.Login
-@using FrontEnd.Components.Pages.Login.Models
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Authentication.Cookies
+
 @inject NavigationManager NavManager
 @inherits LoginBase
 

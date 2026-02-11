@@ -1,6 +1,6 @@
-using FrontEnd.Components;
 using FrontEnd.Components.Services;
 using FrontEnd.Components.Services.Contracts;
+using MathApp.FrontEnd.Components;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.Options;
 
