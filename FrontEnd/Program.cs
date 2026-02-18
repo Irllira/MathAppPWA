@@ -11,7 +11,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:5001/") });
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://mathappbackend20260218034527-hnafa0g4ckc2fwhv.italynorth-01.azurewebsites.net") }); //"https://localhost:5001/") });
 builder.Services.AddScoped<IUnitService,UnitService>();
 builder.Services.AddScoped<IEdLevelService, EdLevelService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

@@ -13,16 +13,18 @@ namespace MathApp.Migrations
             migrationBuilder.RenameColumn(
             name: "IncorrectID",
             table: "DefIncPair",
-            newName: "IncorrectDefinitionId");
+            newName: "IncorrectDefinitionId",
+            schema: "dbo");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.RenameColumn(
-            name: "IncorrectID",
+            name: "IncorrectDefinitionId",
             table: "DefIncPair",
-            newName: "IncorrectDefinitionId");
+            newName: "IncorrectID",
+            schema: "dbo");
         }
     }
 }
