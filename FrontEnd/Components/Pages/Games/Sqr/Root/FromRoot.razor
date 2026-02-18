@@ -1,6 +1,7 @@
 ﻿@page "/FromRoot"
 @using DTO.DTOs
 @using Microsoft.AspNetCore.Components.Authorization
+@using global::FrontEnd.Components.Classes
 @using global::FrontEnd.Components.Pages.Games.Sqr.Root
 @inherits FromRootBase;
 @inject NavigationManager NavManager
@@ -11,41 +12,6 @@
 {
     <h1 style="text-align:center">Wyciągnij Liczbę Całkowitą Przed Pierwiastek </h1>
     <p style="height:10px"></p>
-    if (showHelp == true)
-    {
-        <right>
-            <p style="font-size:25px"> @exerciseNumber można zapisać jako:</p>
-            <p style="font-size:20px">
-                @exerciseNumber = 
-                <InputSelect @bind-Value="helpFull" , @onchange="@((ChangeEventArgs __e) => helpFull = __e?.Value?.ToString())">
-                    @foreach (var root in rootable)
-                    {
-                        <option value="@root">@root</option>
-                    }
-        
-                </InputSelect>
-                
-                *
-                <InputNumber @bind-Value="UserRoot" style="width:50px;font-size:15px"></InputNumber> 
-            </p>
-
-            <p></p>
-            <p style="font-size:20px"> &radic; @helpFull =
-                <InputNumber @bind-Value="UserFullNumber" style="width:50px;font-size:15px"></InputNumber>
-            </p>
-            <p></p>
-
-            <p> @helpMessage1</p>
-            <p> @helpMessage2</p>
-
-         
-        </right>
-    }
-    else
-    {
-        <right> </right>
-    }
-
     <left>
         @if (power == 2)
         {
@@ -57,24 +23,61 @@
         {
             <h2><b> &#8731 @exerciseNumber  = </b></h2>
         }
-    </left>
-    <p style="height:5px"></p>
-    <button class="confbtn" @onclick="Confirm">Potwierdź</button>
-    <p></p>
-    <button class="game2btns" @onclick="Help">Pomoc</button>
+        <p style="height:5px"></p>
+        <button class="confbtn" @onclick="Confirm">Potwierdź</button>
+        <p></p>
+        <button class="game2btns" @onclick="Help">Pomoc</button>
 
-    <p style="height:5px"></p>
-    <p>@message</p>
-    <p style="height:5px"></p>
-    <p>Wynik: @good / @all </p>
+        <p style="height:5px"></p>
+        <p>@gameBase.message</p>
+        <p style="height:5px"></p>
+        <p>Wynik: @gameBase.good / @gameBase.all </p>
+        <p style="height:50px"></p>
+        <button class="backbtn" @onclick="GoBack">Cofnij</button>
+    </left>
+    if (showHelp == true)
+    {
+        <right>
+            <p style="font-size:25px"> @exerciseNumber można zapisać jako:</p>
+            <p style="font-size:20px">
+                @exerciseNumber =
+                <InputSelect @bind-Value="helpFull" , @onchange="@((ChangeEventArgs __e) => helpFull = __e?.Value?.ToString())">
+                    @foreach (var root in rootable)
+                    {
+                        <option value="@root">@root</option>
+                    }
+
+                </InputSelect>
+
+                *
+                <InputNumber @bind-Value="UserRoot" style="width:50px;font-size:15px"></InputNumber>
+            </p>
+
+            <p></p>
+            <p style="font-size:20px">
+                &radic; @helpFull =
+                <InputNumber @bind-Value="UserFullNumber" style="width:50px;font-size:15px"></InputNumber>
+            </p>
+            <p></p>
+
+            <p> @helpMessage1</p>
+            <p> @helpMessage2</p>
+
+
+        </right>
+    }
+    else
+    {
+        <right> </right>
+    }
 }
 else
 {
     <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
     <p style="height:10px"></p>
-    <h4>Twój wynik to: @good / @all </h4>
+    <h4>Twój wynik to: @gameBase.good / @gameBase.all </h4>
 
-    <p style="height:20px"></p>
+    <p style="height:50px"></p>
     <button class="backbtn" @onclick="GoBack">Cofnij</button>
 }
 
@@ -86,10 +89,7 @@ else
     int UserRoot = 0;
     int UserFullNumber = 0;
 
-    int good = 0;
-    int all = 0;
-    private string message = "";
-    private string theEnd = "";
+    GamesBase gameBase = new GamesBase("Potęgi i Pierwiastki","Gry");
 
     private int helpRoot = 0;
     private string helpFull = "";
@@ -103,55 +103,24 @@ else
     {
         if (UserFullNumber == correctFullNmb && UserRoot == correctRoot)
         {
-            await GoodNumber();
+            await gameBase.GoodAnswer();
+            if(gameBase.all >= 10)
+            {
+                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
+                ready = false;
+                return;
+            }
+            UserRoot = 0;
+            UserFullNumber = 0;
+            helpRoot = 0;
+            helpFull = "";
+            showHelp = false;
+            showHelpNext = false;
         }
         else
         {
-            await WrongNumber();
+            await gameBase.WrongAnswer();
         }
-    }
-
-
-    private async Task GoodNumber()
-    {
-        good++;
-        all++;
-        message = "Dobrze!";
-        this.StateHasChanged();
-        if (all >= 10)
-        {
-            theEnd = "Koniec gry!";
-            ready = false;
-            await Task.Delay(1500);
-            await UpdateUserScore();
-            message = "";
-            this.StateHasChanged();
-            return;
-        }
-
-        await Task.Delay(1500);
-        PrepareNewGame();
-        message = "";
-        UserRoot = 0;
-        UserFullNumber = 0;
-        helpRoot = 0;
-        helpFull = "";
-        showHelp = false;
-        showHelpNext = false;
-
-        this.StateHasChanged();
-
-    }
-    private async Task WrongNumber()
-    {
-        all++;
-        message = "Zła Odpowiedź! Spróbuj ponownie";
-        this.StateHasChanged();
-
-        await Task.Delay(1500);
-
-        message = "";
-
     }
 
     private void Help()
@@ -168,36 +137,9 @@ else
         }
     }
 
-    private async Task UpdateUserScore()
+    private async Task GoBack()
     {
-        var g = good;
-        var a = all;
-        var authenticationState = await authenticationStateTask;
-        string username = authenticationState.User.Identity.Name;
-        if (username != null)
-        {
-            var progrss = await userProgressService.GetProgressByAll(username, "Potęgi i Pierwiastki", "Gry");
-            if (progrss != null)
-            {
-                g += progrss.good;
-                a += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Potęgi i Pierwiastki", all = a, good = g };
-                await userProgressService.UpdateProgress(updated);
-
-            }
-            else
-            {
-                await userProgressService.AddProgressByName(username, "Potęgi i Pierwiastki", "Gry", good, all);
-            }
-
-        }
-    }
-
-
-    private void GoBack()
-    {
+        await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
         NavManager.NavigateTo("ChooseGame/uname/Potęgi i Pierwiastki");
     }
-
-   
 }

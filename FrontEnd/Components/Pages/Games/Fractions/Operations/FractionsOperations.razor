@@ -1,6 +1,7 @@
 ﻿@page "/FractionsOperations/{operationType}"
 @using DTO.DTOs
 @using Microsoft.AspNetCore.Components.Authorization
+@using global::FrontEnd.Components.Classes
 @using global::FrontEnd.Components.Pages.Games.Fractions.Operations
 @rendermode InteractiveServer
 @inherits FractionsOperationsBase;
@@ -63,21 +64,19 @@
     <p style="height:5px"></p>
     <button class="confbtn" @onclick="CheckAnwsers">Potwierdź</button>
     <p style="height:5px"></p>
-    <p>@message</p>
+    <p>@gameBase.message</p>
     <p style="height:5px"></p>
-    <p>Wynik: @good / @all </p>
+    <p>Wynik: @gameBase.good / @gameBase.all </p>
     
 }else
 {
     <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
     <p style="height:10px"></p>
-    <h4>Twój wynik to: @good / @all </h4>
-
-    <p style="height:20px"></p>
-    <button class="backbtn" @onclick="GoBack">Cofnij</button>
+    <h4>Twój wynik to: @gameBase.good / @gameBase.all </h4>
 }
 
-
+<p style="height:50px"></p>
+<button class="backbtn" @onclick="GoBack">Cofnij</button>
 
 
 @code {
@@ -91,74 +90,51 @@
     public int[] userHelpDen = new int[2];
 
 
-    int good = 0;
-    int all = 0;
-    private string message = "";
-    private string theEnd = "";
+    GamesBase gameBase = new GamesBase("Ułamki","Gry");
 
     private async Task CheckAnwsers()
     {
         if (userNum == correctNum && userDen ==correctDen)
         {
-            await GoodNumber();
+            await gameBase.GoodAnswer();
+            if(gameBase.all >= 10)
+            {
+                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
+                ready = false;
+                return;
+            }
+            PrepareNewGame();
+            userNum = 0;
+            userDen = 0;
+            userHelpNum = [0, 0];
+            userHelpDen = [0, 0];
         }else
         {
             if ((double)userNum / userDen == (double)correctNum / correctDen)
             {
-                await GoodNumber();
+                await gameBase.GoodAnswer();
+                if (gameBase.all >= 10)
+                {
+                    await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+                    ready = false;
+                    return;
+                }
+                PrepareNewGame();
+                userNum = 0;
+                userDen = 0;
+                userHelpNum = [0, 0];
+                userHelpDen = [0, 0];
             }
             else
             {
-                await WrongNumber();
+                await gameBase.WrongAnswer();
+                userNum = 0;
+                userDen = 0;
             }
 
         }
     }
 
-    private async Task CloseNumber()
-    {
-
-    }
-
-    private async Task GoodNumber()
-    {
-        good++;
-        all++;
-        message = "Dobrze!";
-        this.StateHasChanged();
-        if (all >= 10)
-        {
-            theEnd = "Koniec gry!";
-            ready = false;
-            await Task.Delay(1500);
-            await UpdateUserScore();
-            message = "";
-            this.StateHasChanged();
-            return;
-        }
-
-        await Task.Delay(1500);
-        PrepareNewGame();        
-        message = "";
-        userNum = 0;
-        userDen = 0;
-        userHelpNum = [0,0];
-        userHelpDen = [0,0];
-        this.StateHasChanged();
-
-    }
-    private async Task WrongNumber()
-    {
-        all++;
-        message = "Zła Odpowiedź! Spróbuj ponownie";
-        userNum = 0;
-        userDen = 0;
-        this.StateHasChanged();
-
-        await Task.Delay(1500);
-        message = "";
-
-    }
     public async Task Enter(KeyboardEventArgs e)
     {
         if (e.Code == "Enter" || e.Code == "NumpadEnter")
@@ -168,38 +144,10 @@
         }
     }
 
-    private async Task UpdateUserScore()
+    private async Task GoBack()
     {
-        var g = good;
-        var a = all;
-        var authenticationState = await authenticationStateTask;
-        string username = authenticationState.User.Identity.Name;
-        if (username != null)
-        {
-            var progrss = await userProgressService.GetProgressByAll(username, "Ułamki", "Gry");
-            if (progrss != null)
-            {
-                g += progrss.good;
-                a += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Ułamki", all = a, good = g };
-                await userProgressService.UpdateProgress(updated);
-
-            }
-            else
-            {
-                await userProgressService.AddProgressByName(username, "Ułamki", "Gry", good, all);
-            }
-
-        }
-    }
-
-
-    private void GoBack()
-    {
+        await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
         NavManager.NavigateTo("ChooseGame/uname/Ułamki");
     }
-
-   
-
 }
 

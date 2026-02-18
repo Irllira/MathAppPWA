@@ -10,8 +10,8 @@ namespace FrontEnd.Components.Classes
 {
     public class GamesBase
     {
-        string unitName;
-        string type;
+        public string unitName;
+        public string type;
 
         public int good = 0;
         public int all = 0;

@@ -1,9 +1,6 @@
-using API.Interfaces;
-using API.Repos;
-using MathApp.Enteties;
-using MathEducationWebApp.Components.Interfaces;
-using MathEducationWebApp.Components.Nowy_folder;
-using MathEducationWebApp.Enteties;
+using MathApp.Backend.API.Interfaces;
+using MathApp.Backend.API.Repos;
+using MathApp.Backend.Data.Enteties;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Net.Http.Headers;
 
@@ -21,7 +18,6 @@ builder.Services.AddScoped<IDefinitionRepo, DefinitionRepo>();
 builder.Services.AddScoped<IIncorrectDefinitionRepo, IncorrectDefinitionRepo>();
 builder.Services.AddScoped<IPagesRepo, PagesRepo>();
 builder.Services.AddScoped<IUserProgressRepo, UserProgressRepo>();
-
 
 
 

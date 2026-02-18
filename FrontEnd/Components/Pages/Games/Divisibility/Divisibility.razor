@@ -1,6 +1,7 @@
 ﻿@page "/Divisibility"
 @using DTO.DTOs
 @using Microsoft.AspNetCore.Components.Authorization
+@using global::FrontEnd.Components.Classes
 @using global::FrontEnd.Components.Pages.Games.Divisibility
 @rendermode InteractiveServer
 @inherits DivisibilityBase;
@@ -25,8 +26,6 @@
         <label style="padding:20px"></label>
        
     }
-    
-
     <p style="height:5px"></p>
     <button class="confbtn" @onclick="Confirm">Potwierdź</button>
    
@@ -37,18 +36,18 @@
     <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
     <p style="height:5px"></p>
     <h4> @excerciseNumber</h4>
-    <p> @message </p>
+    <p> @gameBase.message </p>
     <p> @chosen  </p>
     <p> @correct </p>
 
-    <p>Twój wynik w tej rundzie to: @good / @all </p>
+    <p>Twój wynik w tej rundzie to: @gameBase.good / @gameBase.all </p>
     
     <button class="confbtn" @onclick="Next">Następny</button>
 
     <p>Ogólny wynik: @GenGood / @GenAll </p>
-    <p style="height:20px"></p>
-    <button class="backbtn" @onclick="GoBack">Powrót</button>
 }
+<p style="height:50px"></p>
+<button class="backbtn" @onclick="GoBack">Powrót</button>
 
 
 
@@ -56,11 +55,9 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-    int good = 0;
-    int all = 0;
+    GamesBase gameBase = new GamesBase("Podzielność", "Gry");
     int GenGood = 0;
     int GenAll = 0;
-    private string message = "";
     private string chosen = "Twoje odpowiedzi to: ";
 
     private string correct = "Poprawne odpowiedzi to: ";
@@ -100,7 +97,7 @@
         bool b = true;
         ready = false;
 
-        all = all + answer.Count();
+        gameBase.all = gameBase.all + answer.Count();
 
         if (answer[0] == "Brak" && chosenAnswers.Count==0)
         {
@@ -115,27 +112,27 @@
             }
             else
             {
-                good++;
+                gameBase.good++;
             }
         }
         if(b==true && answer.Count()==chosenAnswers.Count())
         {
-            message= "Wszystkie odpowiedzi poprawne :)";            
+            gameBase.message = "Wszystkie odpowiedzi poprawne :)";
         }else
         {
-            if(good==0)
+            if (gameBase.good == 0)
             {
-                message = "Żaden wynik się nie zgadza :(";
+                gameBase.message = "Żaden wynik się nie zgadza :(";
             }
             else
             {
                 if (b == false)
                 {
-                    message = "Brakuje niektórych odpowiedzi";
+                    gameBase.message = "Brakuje niektórych odpowiedzi";
                 }
                 else
                 {
-                    message = "Część wyników niepoprawna";
+                    gameBase.message = "Część wyników niepoprawna";
                 }
             }
         }
@@ -162,57 +159,32 @@
         correct = correct.Remove(x);
 
         await Task.Delay(1000);
-        await UpdateUserScore();
-        GenGood = GenGood + good;
-        GenAll = GenAll + all;
+        await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
+        GenGood = GenGood + gameBase.good;
+        GenAll = GenAll + gameBase.all;
         this.StateHasChanged();
     }
 
     private async Task Next()
     {
-        message = "";
+        gameBase.message = "";
         chosen = "Twoje odpowiedzi to: ";
 
         correct = "Poprawne odpowiedzi to: ";
         theEnd = "";
-        all = 0;
-        good = 0;
+        gameBase.all = 0;
+        gameBase.good = 0;
         PrepareNewGame();
         ready = true;
         await Task.Delay(1000);
-        
+
         this.StateHasChanged();
 
     }
 
-    private async Task UpdateUserScore()
+    private async Task GoBack()
     {
-        var g = good;
-        var a = all;
-        var authenticationState = await authenticationStateTask;
-        string username = authenticationState.User.Identity.Name;
-        if (username != null)
-        {
-            var progrss = await userProgressService.GetProgressByAll(username, "Podzielność", "Gry");
-            if (progrss != null)
-            {
-                g += progrss.good;
-                a += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Podzielność", all = a, good = g };
-                await userProgressService.UpdateProgress(updated);
-
-            }
-            else
-            {
-                await userProgressService.AddProgressByName(username, "Podzielność", "Gry", good, all);
-            }
-
-        }
-    }
-
-
-    private void GoBack()
-    {
+        await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
         NavManager.NavigateTo("ChooseGame/uname/Podzielność");
     }
 }

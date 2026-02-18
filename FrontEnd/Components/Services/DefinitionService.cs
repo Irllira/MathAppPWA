@@ -41,7 +41,7 @@ namespace FrontEnd.Components.Services
 
         public async Task DeleteDefinition(DefinitionDTO definition)
         {
-            string s = "/api/Definition/Delete/" + definition.name;
+            string s = "/api/Definition/Delete/" + definition.ID;
             var response = await _httpClient.DeleteAsync(s);
         }
 

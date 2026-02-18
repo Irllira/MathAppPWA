@@ -1,6 +1,7 @@
 ﻿@page "/WrittenDoubleMulti"
 @using DTO.DTOs
 @using Microsoft.AspNetCore.Components.Authorization
+@using global::FrontEnd.Components.Classes
 @using global::FrontEnd.Components.Pages.Games.WrittenOperations.Multiplication
 @rendermode InteractiveServer
 @inherits WrittenDoubleMultiplicationBase;
@@ -65,34 +66,30 @@
     </p>
 
     <button class="confbtn" @onclick="Confirm">Potwierdź</button>
-    <p>@message</p>
+    <p>@gameBase.message</p>
     foreach(var h in hint)
     {
     <p>@h</p>  
     }
     <p></p>
 
-    <p>Wynik: @good / @all </p>
+    <p>Wynik: @gameBase.good / @gameBase.all </p>
 }
 else
 {
     <p><b>Koniec Gry!</b></p>
-    <p>Twój wynik to: @good / @all </p>
-    
-    <p style="height:20px"></p>
-    <button class="backbtn" @onclick="GoBack">Cofnij</button>
+    <p>Twój wynik to: @gameBase.good / @gameBase.all </p>
 }
+<p style="height:50px"></p>
+<button class="backbtn" @onclick="GoBack">Cofnij</button>
 
 
 @code {
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    GamesBase gameBase = new GamesBase("Działania Pisemne", "Gry");
 
-    int good = 0;
-    int all = 0;
-    private string message = "";
-    private string theEnd = "";
     private string UserAnwser = "";
 
     private List<string> numOne = new List<string>() { "", "", "" };
@@ -123,56 +120,26 @@ else
         UserAnwser = finalAnwser[0] + finalAnwser[1] + finalAnwser[2] +finalAnwser[3];
         if (UserAnwser == correctNumber.ToString())
         {
-            await GoodNumber();
+            await gameBase.GoodAnswer();
+            if (gameBase.all >= 10)
+            {
+                ready = false;
+                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
+                return;
+            }
+            help = new List<string> { "", "" };
+            hint = new List<string> { "", "" };
+            PrepareNewGame();
+            UserAnwser = "";
+            finalAnwser = new List<string> { "", "", "", "" };
+            numOne = new List<string>() { "", "", "" };
+            numTwo = new List<string>() { "", "", "" };
         }
         else
         {
-            await WrongNumber();
+            checkHints();
+            await gameBase.WrongAnswer();
         }
-    }
-
-    private async Task GoodNumber()
-    {
-        good++;
-        all++;
-        message = "Dobrze!";
-        this.StateHasChanged();
-        if (all >= 10)
-        {
-            theEnd = "Koniec gry!";
-            ready = false;
-            await Task.Delay(1500);
-            await UpdateUserScore();
-            message = "";
-            this.StateHasChanged();
-            return;
-        }
-
-        help = new List<string> { "", "" };
-        hint = new List<string> { "", "" };
-
-        await Task.Delay(1500);
-        PrepareNewGame();
-        message = "";
-        UserAnwser = "";
-        finalAnwser = new List<string> { "", "", "", "" };
-        numOne = new List<string>() { "", "", "" };
-        numTwo = new List<string>() { "", "", "" };
-
-        this.StateHasChanged();
-    }
-    private async Task WrongNumber()
-    {
-        checkHints();
-
-        all++;
-        message = "Zła Odpowiedź! Spróbuj ponownie";
-        this.StateHasChanged();
-
-        await Task.Delay(1500);
-        //   PrepareNewGame();
-        message = "";
-        //  this.StateHasChanged();
     }
 
     public async Task Enter(KeyboardEventArgs e)
@@ -240,33 +207,10 @@ else
                 }
             }
     }
-    private async Task UpdateUserScore()
+
+    private async Task GoBack()
     {
-        var g = good;
-        var a = all;
-        var authenticationState = await authenticationStateTask;
-        string username = authenticationState.User.Identity.Name;
-        if (username != null)
-        {
-            var progrss = await userProgressService.GetProgressByAll(username, "Działania Pisemne", "Gry");
-            if (progrss != null)
-            {
-                g += progrss.good;
-                a += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Działania Pisemne", all = a, good = g };
-                await userProgressService.UpdateProgress(updated);
-
-            }
-            else
-            {
-                await userProgressService.AddProgressByName(username, "Działania Pisemne", "Gry", good, all);
-            }
-
-        }
-    }
-
-    private void GoBack()
-    {
+        await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
         NavManager.NavigateTo("ChooseGame/uname/Działania Pisemne");
     }
 }

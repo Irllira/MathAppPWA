@@ -1,6 +1,7 @@
 ﻿@page "/WrittenDivison"
 @using DTO.DTOs
 @using Microsoft.AspNetCore.Components.Authorization
+@using global::FrontEnd.Components.Classes
 @using global::FrontEnd.Components.Pages.Games.WrittenOperations.Division
 @inherits WrittenDivisionBase;
 @rendermode InteractiveServer
@@ -8,7 +9,6 @@
 
 
 <PageTitle>Dzielenie Pisemne</PageTitle>
-
 
 
 @if (ready == true)
@@ -133,7 +133,11 @@
     {
         <right></right>
     }
-   
+
+
+    int x = exerciseNumber1[0] - '0';
+
+   <left>
     <p style="padding-left:60px">
         @for (int i = 0; i < howLong; i++)
         {
@@ -151,12 +155,7 @@
         <b> @exerciseNumber1 </b>    <label>&nbsp;&nbsp;</label><b> : &nbsp;@exerciseNumber2 </b>
     </p>           
 
-    <p></p>
-    
-    int x = exerciseNumber1[0] - '0';
-
-    // First help
-    
+    <p></p>    
     <p style="padding-left:40px">
     <label><b>-</b> &nbsp;</label>
     @if (x<exNum2)
@@ -174,7 +173,7 @@
     </p>
     <hr style="margin-left:2.5em; width:10%; height:2px">
 
-    // First excerciseNumber1
+        <!-- First excerciseNumber1-->
     <p style="padding-left:55px">
     @if (x<exNum2)
     {
@@ -229,25 +228,24 @@
     }
     </p>
 
-    <p style="height:10px"></p>
-    <button class="confbtn" @onclick="Confirm">Potwierdź</button>
-    <p></p>
-    <button class="game2btns" @onclick="Help">Pomoc</button>
+        <p style="height:10px"></p>
+        <button class="confbtn" @onclick="Confirm">Potwierdź</button>
+        <p></p>
+        <button class="game2btns" @onclick="Help">Pomoc</button>
 
-    <p style="height:5px"></p>
-    <p>@message</p>
-    <p style="height:5px"></p>
-
-  
-
-
-    <p>Wynik: @good / @all </p>
+        <p style="height:5px"></p>
+        <p>@gameBase.message</p>
+        <p style="height:5px"></p>
+        <p>Wynik: @gameBase.good / @gameBase.all </p>
+        <p style="height:50px"></p>
+        <button class="backbtn" @onclick="GoBack">Cofnij</button>
+    </left>
 }
 else
 {
     <p><b>Koniec Gry!</b></p>
-    <p>Twój wynik to: @good / @all </p>
-    <p style="height:20px"></p>
+    <p>Twój wynik to: @gameBase.good / @gameBase.all </p>
+    <p style="height:50px"></p>
     <button class="backbtn" @onclick="GoBack">Cofnij</button>
 }
 
@@ -256,11 +254,7 @@ else
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
-
-    int good = 0;
-    int all = 0;
-    private string message = "";
-    private string theEnd = "";
+    GamesBase gameBase = new GamesBase("Działania Pisemne", "Gry");
     private string UserAnwser = "";
 
     // private List<string> finalNumber = new List<string>() { "", "", "" };
@@ -294,60 +288,30 @@ else
         UserAnwser = finalAnwser[0] + finalAnwser[1] + finalAnwser[2];
         if (UserAnwser == correctNumber.ToString())
         {
-            await GoodNumber();
+            await gameBase.GoodAnswer();
+            if (gameBase.all >= 10)
+            {
+                ready = false;
+                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
+                return;
+            }
+            help1 = new List<string> { "", "" };
+            help2 = new List<string> { "", "" };
+            hint = new List<string> { "", "" };
+            UserAnwser = "";
+            showHelp = false;
+            finalAnwser = new List<string> { "", "", "" };
+            numTwo = new List<string>() { "", "", "" };
+            numOne = new List<string>() { "", "", "" };
+            PrepareNewGame();
         }
         else
         {
-            await WrongNumber();
+            await gameBase.WrongAnswer();
+            checkHints();
         }
     }
 
-    private async Task GoodNumber()
-    {
-        good++;
-        all++;
-        message = "Dobrze!";
-        this.StateHasChanged();
-        if (all >= 10)
-        {
-            theEnd = "Koniec gry!";
-            ready = false;
-            await Task.Delay(1500);
-            await UpdateUserScore();
-            message = "";
-            this.StateHasChanged();
-            return;
-        }
-
-        help1 = new List<string> { "", "" };
-        help2 = new List<string> { "", "" };
-        hint = new List<string> { "", "" };
-
-        await Task.Delay(1500);
-        PrepareNewGame();
-        message = "";
-        UserAnwser = "";
-        showHelp = false;
-        finalAnwser = new List<string> { "", "", "" };
-
-        numTwo = new List<string>() { "", "", "" };
-        numOne = new List<string>() { "", "", "" };
-
-        this.StateHasChanged();
-    }
-    private async Task WrongNumber()
-    {
-        checkHints();
-
-        all++;
-        message = "Zła Odpowiedź! Spróbuj ponownie";
-        this.StateHasChanged();
-
-        await Task.Delay(1500);
-        //   PrepareNewGame();
-        message = "";
-        //  this.StateHasChanged();
-    }
 
     public async Task Enter(KeyboardEventArgs e)
     {
@@ -450,34 +414,11 @@ else
             showHelp = true;
         }
     }
+ 
 
-    private async Task UpdateUserScore()
+    private async Task GoBack()
     {
-        var g = good;
-        var a = all;
-        var authenticationState = await authenticationStateTask;
-        string username = authenticationState.User.Identity.Name;
-        if (username != null)
-        {
-            var progrss = await userProgressService.GetProgressByAll(username, "Działania Pisemne", "Gry");
-            if (progrss != null)
-            {
-                g += progrss.good;
-                a += progrss.all;
-                var updated = new UserProgressDTO() { Id = progrss.Id, AccountId = progrss.AccountId, type = "Gry", unitName = "Działania Pisemne", all = a, good = g };
-                await userProgressService.UpdateProgress(updated);
-
-            }
-            else
-            {
-                await userProgressService.AddProgressByName(username, "Działania Pisemne", "Gry", good, all);
-            }
-
-        }
-    }
-
-    private void GoBack()
-    {
+        await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
         NavManager.NavigateTo("ChooseGame/uname/Działania Pisemne");
     }
 }

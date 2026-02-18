@@ -14,7 +14,7 @@ namespace MathEducationWebApp.Enteties
 
         public static async Task Seed(DataBase context)
         {
-            
+            await Task.Delay(10);
             if (context.Database.CanConnect())
             {
                 if(!context.educationLevels.Any())

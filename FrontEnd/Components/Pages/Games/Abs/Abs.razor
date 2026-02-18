@@ -28,9 +28,7 @@ else
 {
     <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
     <p style="height:10px"></p>
-    <h4>Twój wynik to: @gameBase.good / @gameBase.all </h4>
-
-   
+    <h4>Twój wynik to: @gameBase.good / @gameBase.all </h4>   
 }
 <p style="height:50px"></p>
 <button class="backbtn" @onclick="GoBack">Cofnij</button>
@@ -41,7 +39,6 @@ else
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     private int UserAnwser;
-
 
     private async Task Confirm()
     {

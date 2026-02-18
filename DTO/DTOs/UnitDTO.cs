@@ -11,10 +11,6 @@ namespace DTO.DTOs
         public required int ID {  get; set; }
         public required string name {  get; set; }
         public string? description { get; set; }
-
         public required string educationLevel { get; set; }
-
- //       public virtual List<DefinitionDTO> definitions { get; set; } 
-
     }
 }
