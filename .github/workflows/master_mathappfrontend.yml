@@ -61,8 +61,6 @@ jobs:
         with:
           app-name: 'MathAppFrontEnd'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ./FrontEnd/wwwroot
 
           
 
