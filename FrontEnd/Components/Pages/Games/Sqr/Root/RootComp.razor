@@ -28,9 +28,9 @@
         <p></p>
         <button class="game2btns" @onclick="Help">Pomoc</button>
         <p style="height:5px"></p>
-        <p>@message</p>
+        <p>@gameBase.message</p>
         <p style="height:5px"></p>
-        <p>Wynik: @good / @all </p>
+        <p>Wynik: @gameBase.good / @gameBase.all </p>
         @if (next == true)
         {
             <p style="height:10px"></p>
@@ -79,7 +79,7 @@
 {
         <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
         <p style="height:10px"></p>
-        <h4>Twój wynik to: @good / @all </h4>
+    <h4>Twój wynik to: @gameBase.good / @gameBase.all </h4>
 
         <p style="height:50px"></p>
         <button class="backbtn" @onclick="GoBack">Cofnij</button>
