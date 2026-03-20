@@ -41,6 +41,11 @@
     <p>@gameBase.message</p>
     <p style="height:5px"></p>
     <p>Wynik: @gameBase.good / @gameBase.all </p>
+    if (next == true)
+    {
+        <p style="height:10px"></p>
+        <button class="confbtn" @onclick="Next">Następne</button>
+    }
 }else
 {
     <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
@@ -57,16 +62,20 @@
 
 
     private int UserAnwser;
+    private bool next = false;
 
     private async Task Confirm()
     {
+        if(next==true)
+        {
+            return;
+        }
         switch (symbol)
         {
             case 0:                                                     //  =
                 if (UserAnwser == excerciseNumber)
                 {
                     await gameBase.GoodAnswer();
-
                 }
                 else
                 {
@@ -79,7 +88,6 @@
                 if (excerciseNumber < UserAnwser)
                 {
                     await gameBase.GoodAnswer();
-
                 }
                 else
                 {
@@ -92,7 +100,6 @@
                 if (excerciseNumber > UserAnwser)
                 {
                     await gameBase.GoodAnswer();
-
                 }
                 else
                 {
@@ -117,7 +124,6 @@
                 if (excerciseNumber <= UserAnwser)
                 {
                     await gameBase.GoodAnswer();
-
                 }
                 else
                 {
@@ -127,16 +133,21 @@
                 break;
         }
 
+        next = true;
+    }
+
+    private async Task Next()
+    {
         if (gameBase.all >= 10)
         {
             ready = false;
             await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
             return;
         }
-
         PrepareNewGame();
         UserAnwser = 0;
         gameBase.message = "";
+        next = false;
     }
 
     public async Task Enter(KeyboardEventArgs e)

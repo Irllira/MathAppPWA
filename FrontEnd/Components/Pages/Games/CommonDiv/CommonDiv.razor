@@ -156,6 +156,12 @@
 
     <p style="height:5px"></p>
     <p>Wynik: @gameBase.good / @gameBase.all </p>
+    @if (next == true)
+    {
+        <p style="height:10px"></p>
+        <button class="confbtn" @onclick="Next">Następne</button>
+    }
+
     <p style="height:50px"></p>
     <button class="backbtn" @onclick="GoBack">Cofnij</button>
 
@@ -192,11 +198,18 @@
     private List<int> nwdUserList = new List<int>();
     private List<int> nwwUserList = new List<int>();
 
+    private bool next = false;
+
 
     private async Task Confirm1()
     {
         var userGivenNum = userNumbers1[numberNumbers1];
         var lastNum = divNumbers1[divNumbers1.Count - 1];
+        if(userGivenNum==0)
+        {
+            message1 = "Nie dziel przez zero!";
+        }
+
         if (lastNum % userGivenNum == 0)
         {
             for (int i = 2; i < userGivenNum; i++)
@@ -238,6 +251,11 @@
     {
         var userGivenNum = userNumbers2[numberNumbers2];
         var lastNum = divNumbers2[divNumbers2.Count - 1];
+
+        if (userGivenNum == 0)
+        {
+            message2 = "Nie dziel przez zero!";
+        }
         if (lastNum % userGivenNum == 0)
         {
             for (int i = 2; i < userGivenNum; i++)
@@ -294,17 +312,31 @@
 
     private async Task ConfirmFinal()
     {
+        if(next)
+        {
+            return;
+        }
         if (userNWD == anwserNWD && userNWW == anwserNWW)
         {
             await gameBase.GoodAnswer();
-            if (gameBase.all >= 10)
-            {
-                ready = false;
-                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
-                gameBase.message = "";
-                this.StateHasChanged();
-                return;
-            }
+            next = true;
+        }
+        else
+        {
+            await CheckHints();
+        }
+    }
+
+    private async Task Next()
+    {
+        if (gameBase.all >= 10)
+        {
+            ready = false;
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+            return;
+        }
+        else
+        {
             part2 = false;
             num1 = false;
             num2 = false;
@@ -316,12 +348,9 @@
             nwwList = new List<int>();
             nwdUserList = new List<int>();
             nwwUserList = new List<int>();
-            hint = ["", ""]; 
+            hint = ["", ""];
             PrepareNewGame();
-        }
-        else
-        {
-            await CheckHints();
+            next = false;
         }
     }
 

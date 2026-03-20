@@ -237,6 +237,11 @@
         <p>@gameBase.message</p>
         <p style="height:5px"></p>
         <p>Wynik: @gameBase.good / @gameBase.all </p>
+        @if (next == true)
+        {
+            <p style="height:10px"></p>
+            <button class="confbtn" @onclick="Next">Następne</button>
+        }
         <p style="height:50px"></p>
         <button class="backbtn" @onclick="GoBack">Cofnij</button>
     </left>
@@ -272,9 +277,15 @@ else
 
     private List<string> hint =new List<string>(){"",""};
 
+    private bool next = false;
 
     private async Task Confirm()
     {
+        if(next)
+        {
+            return;
+        }
+
         if (finalAnwser[0] == "0")
         {
             finalAnwser[0]= "";            
@@ -289,27 +300,33 @@ else
         if (UserAnwser == correctNumber.ToString())
         {
             await gameBase.GoodAnswer();
-            if (gameBase.all >= 10)
-            {
-                ready = false;
-                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
-                return;
-            }
-            help1 = new List<string> { "", "" };
-            help2 = new List<string> { "", "" };
-            hint = new List<string> { "", "" };
-            UserAnwser = "";
-            showHelp = false;
-            finalAnwser = new List<string> { "", "", "" };
-            numTwo = new List<string>() { "", "", "" };
-            numOne = new List<string>() { "", "", "" };
-            PrepareNewGame();
+            next = true;
         }
         else
         {
             await gameBase.WrongAnswer();
             checkHints();
         }
+    }
+
+    private async Task Next()
+    {
+        next = false;
+        if (gameBase.all >= 10)
+        {
+            ready = false;
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+            return;
+        }
+        help1 = new List<string> { "", "" };
+        help2 = new List<string> { "", "" };
+        hint = new List<string> { "", "" };
+        UserAnwser = "";
+        showHelp = false;
+        finalAnwser = new List<string> { "", "", "" };
+        numTwo = new List<string>() { "", "", "" };
+        numOne = new List<string>() { "", "", "" };
+        PrepareNewGame();
     }
 
 

@@ -55,6 +55,11 @@
             <p>@gameBase.message</p>
             <p style="height:5px"></p>
             <p>Wynik: @gameBase.good / @gameBase.all </p>
+            @if (next == true)
+            {
+                <p style="height:10px"></p>
+                <button class="confbtn" @onclick="Next">Następne</button>
+            }
             <p style="height:50px"></p>
             <button class="backbtn" @onclick="GoBack">Cofnij</button>
         </left>
@@ -96,7 +101,11 @@
             <p>@gameBase.message</p>
             <p style="height:5px"></p>
             <p>Wynik: @gameBase.good / @gameBase.all </p>
-
+            @if (next == true)
+            {
+                <p style="height:10px"></p>
+                <button class="confbtn" @onclick="Next">Następne</button>
+            }
             <p style="height:50px"></p>
             <button class="backbtn" @onclick="GoBack">Cofnij</button>
         </left>       
@@ -123,28 +132,40 @@
     private int UserFullNumber;
 
     private bool showHelp = false;
+    private bool next = false;
 
     private async Task Confirm()
     {
+        if (next)
+        {
+            return;
+        }
+
         if (UserDen == AnwserDenominator && UserNum == AnwserNumerator && (UserFullNumber == AnwserFullNumber || type == "from"))
         {
             await gameBase.GoodAnswer();
-            if(gameBase.all >= 10)
-            {
-                ready = false;
-                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
-                return;
-            }
-            PrepareNewGame();
-            UserDen = 0;
-            UserNum = 0;
-            UserFullNumber = 0;
-            help = 0;
-            showHelp = false;
+            next = true;
         }else
         {
             await gameBase.WrongAnswer();
         }
+    }
+
+    private async Task Next()
+    {
+        next = false; 
+        if (gameBase.all >= 10)
+        {
+            ready = false;
+            await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
+            return;
+        }
+        PrepareNewGame();
+        UserDen = 0;
+        UserNum = 0;
+        UserFullNumber = 0;
+        help = 0;
+        showHelp = false;
     }
 
     private void Help()

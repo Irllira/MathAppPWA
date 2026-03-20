@@ -94,6 +94,11 @@
         <p>@gamesBase.message</p>
         <p style="height:10px"></p>
         <p>Wynik: @gamesBase.good / @gamesBase.all </p>
+        @if (next == true)
+        {
+            <p style="height:10px"></p>
+            <button class="confbtn" @onclick="Next">Następne</button>
+        }
 
     }else
     {
@@ -124,17 +129,29 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    private bool next = false;
+
     private async Task GoodNumber()
     {
+        if(next)
+        {
+            return;
+        }
         if (currentDef != null)
             usedDefinitions.Add(currentDef.ID);
 
         await gamesBase.GoodAnswer();
 
+        next = true;
+    }
+
+    private async Task Next()
+    {
+        next = false;
         if (gamesBase.all >= 10 || usedDefinitions.Count == Definitions.Count)
         {
             ready = false;
-            await gamesBase.UpdateUserScore(authenticationStateTask,userProgressService);
+            await gamesBase.UpdateUserScore(authenticationStateTask, userProgressService);
             return;
         }
         else

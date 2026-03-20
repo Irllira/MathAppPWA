@@ -56,6 +56,11 @@
     <p></p>
 
     <p>Wynik: @gameBase.good / @gameBase.all </p>
+    @if (next == true)
+    {
+        <p style="height:10px"></p>
+        <button class="confbtn" @onclick="Next">Następne</button>
+    }
 }
 else
 {
@@ -82,9 +87,14 @@ else
     private List<string> help = new List<string>(){"",""};
     private List<string> hint =new List<string>(){"",""};
 
+    private bool next = false;
 
     private async Task Confirm()
     {
+        if(next == true)
+        {
+            return;
+        }
         if (hun == "0"||hun=="")
         {
             hun = "";
@@ -97,20 +107,7 @@ else
         if (UserAnwser == correctNumber.ToString())
         {
             await gameBase.GoodAnswer();
-            if (gameBase.all >= 10)
-            {
-                ready = false;
-                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
-                return;
-            }
-            help = new List<string> { "", "" };
-            hint = new List<string> { "", "" };
-            UserAnwser = "";
-            hun = "";
-            ten = "";
-            one = "";
-
-            PrepareNewGame();
+            next = true;
         }
         else
         {
@@ -118,6 +115,24 @@ else
             Hints();
 
         }
+    }
+
+    private async Task Next()
+    {
+        next = false;
+        if (gameBase.all >= 10)
+        {
+            ready = false;
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+            return;
+        }
+        help = new List<string> { "", "" };
+        hint = new List<string> { "", "" };
+        UserAnwser = "";
+        hun = "";
+        ten = "";
+        one = "";
+        PrepareNewGame();
     }
 
     public async Task Enter(KeyboardEventArgs e)

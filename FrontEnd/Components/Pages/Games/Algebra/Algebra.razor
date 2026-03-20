@@ -10,7 +10,6 @@
 
 @if (ready == true)
 {
-
     <h1 style="text-align:center"> Policz wyrażenie algebraiczne dla liczby @x </h1>
     <p style="height:10px"></p>
     <left>
@@ -56,6 +55,11 @@
 
         <p style="height:50px"></p>
         <button class="backbtn" @onclick="GoBack">Cofnij</button>
+        @if (next == true)
+        {
+        <p style="height:10px"></p>
+            <button class="confbtn" @onclick="Next">Następne</button>
+        }
     </left>
     <right>
         @if (showHints == true)
@@ -112,34 +116,43 @@ else
     private string[] hints = ["", "", ""];
 
     private bool showHints = false;
+    private bool next = false;
 
     private async Task Confirm()
     {
-        if (userFinalInput== FinalNumber + "" )
+        if (next == true)
+        {
+            return;
+        }
+
+        if (userFinalInput == FinalNumber + "")
         {
             await gameBase.GoodAnswer();
-            if (gameBase.all >= 10)
-            {
-                ready = false;
-                await Task.Delay(1500);
-                await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
-            }
-            else
-            {
-                PrepareNewGame();
-                userInput = ["", "", "", ""];
-                userFinalInput = "";
-                hints = ["", "", ""];
-                userX = "";
-                showHints = false;
-            }
+            next = true;
         }
         else
         {
             await gameBase.WrongAnswer();
             CheckHints();
         }
+    }
 
+    private async Task Next()
+    {
+        if (gameBase.all >= 10)
+        {
+            ready = false;
+            await Task.Delay(1500);
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+        }else {
+            PrepareNewGame();
+            userInput = ["", "", "", ""];
+            userFinalInput = "";
+            hints = ["", "", ""];
+            userX = "";
+            showHints = false;
+        }
+        next = false;
     }
 
     private void CheckHints()

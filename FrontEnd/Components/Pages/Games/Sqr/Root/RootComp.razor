@@ -1,5 +1,6 @@
 ﻿@page "/RootComp"
 @using Microsoft.AspNetCore.Components.Authorization
+@using global::FrontEnd.Components.Classes
 @using global::FrontEnd.Components.Pages.Games.Sqr.Root
 @inherits RootCompBase;
 @inject NavigationManager NavManager
@@ -30,6 +31,11 @@
         <p>@message</p>
         <p style="height:5px"></p>
         <p>Wynik: @good / @all </p>
+        @if (next == true)
+        {
+            <p style="height:10px"></p>
+            <button class="confbtn" @onclick="Next">Następne</button>
+        }
         <p style="height:50px"></p>
         <button class="backbtn" @onclick="GoBack">Cofnij</button>
     </left>
@@ -68,7 +74,6 @@
     {
         <right> </right>
     }
-
    
 }else
 {
@@ -85,13 +90,10 @@
     [CascadingParameter]
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
+    GamesBase gameBase = new GamesBase("Potęgi i Pierwiastki","Gry");
+
     int UserBiggerNumber = 0;
     int UserSmallerNumber = 0;
-
-    int good = 0;
-    int all = 0;
-    private string message = "";
-    private string theEnd = "";
 
     private int helpBigger = 0;
     private int helpSmaller = 0;
@@ -100,60 +102,45 @@
     private string helpMessage1 = "";
     private string helpMessage2 = "";
 
+    private bool next = false;
 
     private async Task Confirm()
     {
+        if(next)
+        {
+            return;
+        }
         if (UserSmallerNumber == correctSmallerNumber && UserBiggerNumber == correctBiggerNumber)
         {
-            await GoodNumber();
+            await gameBase.GoodAnswer();
+            next = true;
         }
         else
         {
-            await WrongNumber();
+            await gameBase.WrongAnswer();
         }
     }
 
-
-    private async Task GoodNumber()
+    private async Task Next()
     {
-        good++;
-        all++;
-        message = "Dobrze!";
-        this.StateHasChanged();
-        if (all >= 10)
+        next = false;
+        if (gameBase.all >= 10)
         {
-            theEnd = "Koniec gry!";
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
             ready = false;
-            await Task.Delay(1500);
-            message = "";
+            gameBase.message = "";
             this.StateHasChanged();
             return;
         }
-
-        await Task.Delay(1500);
         PrepareNewGame();
-        message = "";
         UserBiggerNumber = 0;
         UserSmallerNumber = 0;
         helpBigger = 0;
         helpSmaller = 0;
         showHelp = false;
         showHelpNext = false;
-
-        this.StateHasChanged();
-
     }
-    private async Task WrongNumber()
-    {
-        all++;
-        message = "Zła Odpowiedź! Spróbuj ponownie";
-        this.StateHasChanged();
 
-        await Task.Delay(1500);
-
-        message = "";
-
-    }
 
     private void Help()
     {
@@ -169,8 +156,10 @@
         }
     }
 
-    private void GoBack()
+    private async Task GoBack()
     {
+        await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+
         NavManager.NavigateTo("ChooseGame/uname/Potęgi i Pierwiastki");
     }
 

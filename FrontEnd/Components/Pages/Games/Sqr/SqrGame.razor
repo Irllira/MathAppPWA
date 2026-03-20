@@ -108,6 +108,11 @@
     <p>@gameBase.message</p>
     <p style="height:5px"></p>
     <p>Wynik: @gameBase.good / @gameBase.all </p>
+    @if (next == true)
+        {
+            <p style="height:10px"></p>
+            <button class="confbtn" @onclick="Next">Następne</button>
+        }
     <p style="height:50px"></p>
     <button class="backbtn" @onclick="GoBack">Cofnij</button>
    </left>
@@ -233,24 +238,34 @@
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     GamesBase gameBase = new GamesBase("Potęgi i Pierwiastki", "Gry");
-  
+
     private int[] help = new int[4];
 
     private bool showHelp = false;
+    private bool next = false;
 
     private async Task GoodNumber()
     {
+        if(next)
+        {
+            return;
+        }
         await gameBase.GoodAnswer();
+        next = true;
+    }
+
+    private async Task Next()
+    {
         if (gameBase.all >= 10)
         {
             ready = false;
             await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
             return;
         }
-
         PrepareNewGame();
         showHelp = false;
         help = new int[4];
+        next = false;
     }
 
     private void Help()

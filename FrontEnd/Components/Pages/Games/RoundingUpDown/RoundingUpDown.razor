@@ -23,6 +23,11 @@
     <p>@gameBase.message</p>
     <p></p>
     <p>Wynik: @gameBase.good / @gameBase.all </p>
+    @if (next == true)
+    {
+        <p style="height:10px"></p>
+        <button class="confbtn" @onclick="Next">Następne</button>
+    }
 }else
 {
     <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
@@ -41,25 +46,38 @@
     GamesBase gameBase = new GamesBase("Liczby Naturalne", "Gry");
     private string UserAnwser="";
 
+    private bool next = false;
 
     private async Task Confirm()
     {
+        if(next)
+        {
+            return;
+        }
+
         if (UserAnwser == correctNumber.ToString())
         {
             await gameBase.GoodAnswer();
-            if (gameBase.all >= 10)
-            {
-                await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
-                ready = false;
-                return;
-            }
-            PrepareNewGame();
-            UserAnwser = "";
+            next = true;
         }
         else
         {
             await gameBase.WrongAnswer();
         }
+    }
+
+
+    private async Task Next()
+    {
+        next = false;
+        if (gameBase.all >= 10)
+        {
+            ready = false;
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+            return;
+        }
+        PrepareNewGame();
+        UserAnwser = "";
     }
 
     public async Task Enter(KeyboardEventArgs e)

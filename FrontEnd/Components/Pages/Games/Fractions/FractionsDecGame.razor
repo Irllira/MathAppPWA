@@ -65,6 +65,11 @@
     <p>@gamesBase.message</p>
     <p style="height:5px"></p>
     <p>Wynik: @gamesBase.good / @gamesBase.all </p>
+    @if (next == true)
+    {
+        <p style="height:10px"></p>
+        <button class="confbtn" @onclick="Next">Następne</button>
+    }
 }else
 {
     <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
@@ -79,10 +84,21 @@
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     GamesBase gamesBase = new GamesBase("Ułamki","Gry");
+    private bool next = false;
 
     private async Task GoodNumber()
     {
+        if(next == true)
+        {
+            return;
+        }
         await gamesBase.GoodAnswer();
+        next = true;
+    }
+
+    private async Task Next()
+    {
+        next = false; 
         if (gamesBase.all >= 10)
         {
             ready = false;

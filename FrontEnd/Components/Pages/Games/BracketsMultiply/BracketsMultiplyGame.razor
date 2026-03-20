@@ -44,6 +44,11 @@
         <p>Wynik: @gameBase.good / @gameBase.all </p>
         <p style="height:50px"></p>
         <button class="backbtn" @onclick="GoBack">Cofnij</button>
+        @if (next == true)
+        {
+            <p style="height:10px"></p>
+            <button class="confbtn" @onclick="Next">Następne</button>
+        }
     </left>
    <right>
         @if(showHints==true){
@@ -134,27 +139,19 @@
     private string[] hints = ["", "",""];
 
     private bool showHints = false;
+    private bool next = false;
 
     private async Task Confirm()
     {
+        if(next)
+        {
+            return;
+        }
+
         if (userFinalInput[0] == FinalNumbers[0] + "" && userFinalInput[1] == Math.Abs(FinalNumbers[1]) + "" && userFinalInput[2] == Math.Abs(FinalNumbers[2]) + "" && CheckFinalSymbol() == true)
         {
             await gameBase.GoodAnswer();
-            if (gameBase.all >= 10)
-            {
-                ready = false;
-                await Task.Delay(1500);
-                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
-            }else
-            {
-                PrepareNewGame();
-                userInput = ["", "", "", ""];
-                userSymbols = ["", "", ""];
-                userFinalInput = ["", "", ""];
-                userFinalSymbols = ["", ""];
-                hints = ["", "", ""];
-                showHints = false;
-            }
+            next = true;
         }
         else
         {
@@ -162,6 +159,27 @@
             CheckHints();
         }
 
+    }
+
+    private async Task Next()
+    {
+        if (gameBase.all >= 10)
+        {
+            ready = false;
+            await Task.Delay(1500);
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+        }
+        else
+        {
+            PrepareNewGame();
+            userInput = ["", "", "", ""];
+            userSymbols = ["", "", ""];
+            userFinalInput = ["", "", ""];
+            userFinalSymbols = ["", ""];
+            hints = ["", "", ""];
+            showHints = false;
+        }
+        next = false;
     }
 
     private void CheckHints()

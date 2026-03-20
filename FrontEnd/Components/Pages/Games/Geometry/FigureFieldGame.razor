@@ -256,6 +256,11 @@
 
     <p style="height:5px"></p>
     <p>Wynik: @gameBase.good / @gameBase.all </p>
+    @if (next == true)
+    {
+        <p style="height:10px"></p>
+        <button class="confbtn" @onclick="Next">Następne</button>
+    }
 }else
 {
     <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
@@ -277,6 +282,7 @@
     private Formula formula = new Formula();
 
     GamesBase gameBase = new GamesBase("Geometria", "Gry");
+    private bool next = false;
 
     private async Task CheckForm(MouseEventArgs e, Formula form)
     {
@@ -300,25 +306,35 @@
 
     private async Task Confirm()
     {
+        if(next == true)
+        {
+            return;
+        }
         if (finalAnwser == userAnwser)
         {
             await gameBase.GoodAnswer();
-            if (gameBase.all >= 10)
-            {
-                ready = false;
-                await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
-                return;
-            }
-            PrepareNewGame();
-            userAnwser = 0;
-            userInput = [0, 0, 0];
-            hints = ["", "", ""];
+            next = true;
         }
         else
         {
             CheckHints();
             await gameBase.WrongAnswer();
         }
+    }
+
+    private async Task Next()
+    {
+        next = false;
+        if (gameBase.all >= 10)
+        {
+            ready = false;
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+            return;
+        }
+        PrepareNewGame();
+        userAnwser = 0;
+        userInput = [0, 0, 0];
+        hints = ["", "", ""];
     }
 
     private void CheckHints()

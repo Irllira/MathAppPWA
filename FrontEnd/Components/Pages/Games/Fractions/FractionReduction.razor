@@ -67,6 +67,11 @@
     <p>@gameBase.message</p>
     <p style="height:5px"></p>
     <p>Wynik: @gameBase.good / @gameBase.all </p>
+    @if (next == true)
+    {
+        <p style="height:10px"></p>
+        <button class="confbtn" @onclick="Next">Następne</button>
+    }
 }else
 {
     <h2 style="text-align:center"><b>Koniec Gry!</b></h2>
@@ -84,6 +89,7 @@
     GamesBase gameBase = new GamesBase("Ułamki","Gry");
     private int UserDen;
     private int UserNum;
+    private bool next = false;
 
 
     private async Task GoodPartOne()
@@ -99,21 +105,15 @@
 
     private async Task CheckAnwsers()
     {
+        if(next)
+        {
+            return;
+        }
         string a = UserNum + " / " + UserDen;
 
         if (a == correctNumber)
         {
-            await gameBase.GoodAnswer();
-            if (gameBase.all >= 10)
-            {
-                ready = false;
-                await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
-                return;
-            }
-            PrepareNewGame();
-            part = "multi";
-            UserNum = 0;
-            UserDen = 0;
+            next = true;
             return;
         }
         else
@@ -131,6 +131,21 @@
                 UserDen = 0;
             }
         }
+    }
+
+    private async Task Next()
+    {
+        if (gameBase.all >= 10)
+        {
+            ready = false;
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+            return;
+        }
+        PrepareNewGame();
+        part = "multi";
+        UserNum = 0;
+        UserDen = 0;
+        next = false;
     }
 
     private async Task CloseNumber()

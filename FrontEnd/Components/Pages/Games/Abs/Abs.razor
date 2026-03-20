@@ -23,6 +23,11 @@
     <p>@gameBase.message</p>
     <p></p>
     <p>Wynik: @gameBase.good / @gameBase.all </p>
+    if (next == true)
+    {
+        <p style="height:10px"></p>
+        <button class="confbtn" @onclick="Next">Następne</button>
+    }
 }
 else
 {
@@ -30,6 +35,7 @@ else
     <p style="height:10px"></p>
     <h4>Twój wynik to: @gameBase.good / @gameBase.all </h4>   
 }
+
 <p style="height:50px"></p>
 <button class="backbtn" @onclick="GoBack">Cofnij</button>
 
@@ -39,19 +45,18 @@ else
     private Task<AuthenticationState> authenticationStateTask { get; set; }
 
     private int UserAnwser;
+    private bool next = false;
 
     private async Task Confirm()
     {
+        if(next==true)
+        {
+            return;
+        }
         if (UserAnwser == correctNumber)
         {
             await gameBase.GoodAnswer();
-            if (gameBase.all>10)
-            {
-                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
-                ready = false;
-            }
-            PrepareNewGame();
-            UserAnwser = 0;
+            next = true;
         }
         else
         {
@@ -59,7 +64,20 @@ else
         }
     }
 
-   
+    private async Task Next()
+    {
+        if (gameBase.all > 10)
+        {
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+            ready = false;
+        }
+        else
+        {
+            PrepareNewGame();
+            UserAnwser = 0;
+        }
+        next = false;
+    }
 
     public async Task Enter(KeyboardEventArgs e)
     {

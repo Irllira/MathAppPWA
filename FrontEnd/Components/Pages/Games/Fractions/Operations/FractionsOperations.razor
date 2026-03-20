@@ -67,6 +67,11 @@
     <p>@gameBase.message</p>
     <p style="height:5px"></p>
     <p>Wynik: @gameBase.good / @gameBase.all </p>
+    @if (next == true)
+    {
+        <p style="height:10px"></p>
+        <button class="confbtn" @onclick="Next">Następne</button>
+    }
     
 }else
 {
@@ -89,41 +94,26 @@
     public int[] userHelpNum = new int[2];
     public int[] userHelpDen = new int[2];
 
+    private bool next = false;
 
     GamesBase gameBase = new GamesBase("Ułamki","Gry");
 
     private async Task CheckAnwsers()
     {
+        if(next == true)
+        {
+            return;
+        }
         if (userNum == correctNum && userDen ==correctDen)
         {
             await gameBase.GoodAnswer();
-            if(gameBase.all >= 10)
-            {
-                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
-                ready = false;
-                return;
-            }
-            PrepareNewGame();
-            userNum = 0;
-            userDen = 0;
-            userHelpNum = [0, 0];
-            userHelpDen = [0, 0];
+            next = true;
         }else
         {
             if ((double)userNum / userDen == (double)correctNum / correctDen)
             {
                 await gameBase.GoodAnswer();
-                if (gameBase.all >= 10)
-                {
-                    await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
-                    ready = false;
-                    return;
-                }
-                PrepareNewGame();
-                userNum = 0;
-                userDen = 0;
-                userHelpNum = [0, 0];
-                userHelpDen = [0, 0];
+                next = true;
             }
             else
             {
@@ -133,6 +123,22 @@
             }
 
         }
+    }
+
+    private async Task Next()
+    {
+        if (gameBase.all >= 10)
+        {
+            ready = false;
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+            return;
+        }
+        PrepareNewGame();
+        userNum = 0;
+        userDen = 0;
+        userHelpNum = [0, 0];
+        userHelpDen = [0, 0];
+        next = false;
     }
 
     public async Task Enter(KeyboardEventArgs e)

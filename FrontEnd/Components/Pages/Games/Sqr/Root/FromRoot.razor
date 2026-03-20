@@ -32,6 +32,11 @@
         <p>@gameBase.message</p>
         <p style="height:5px"></p>
         <p>Wynik: @gameBase.good / @gameBase.all </p>
+        @if (next == true)
+        {
+            <p style="height:10px"></p>
+            <button class="confbtn" @onclick="Next">Następne</button>
+        }
         <p style="height:50px"></p>
         <button class="backbtn" @onclick="GoBack">Cofnij</button>
     </left>
@@ -98,29 +103,42 @@ else
     private string helpMessage1 = "";
     private string helpMessage2 = "";
 
+    private bool next = false;
 
     private async Task Confirm()
     {
+        if(next)
+        {
+            return;
+        }
+
         if (UserFullNumber == correctFullNmb && UserRoot == correctRoot)
         {
             await gameBase.GoodAnswer();
-            if(gameBase.all >= 10)
-            {
-                await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
-                ready = false;
-                return;
-            }
-            UserRoot = 0;
-            UserFullNumber = 0;
-            helpRoot = 0;
-            helpFull = "";
-            showHelp = false;
-            showHelpNext = false;
+            next = true;
         }
         else
         {
             await gameBase.WrongAnswer();
         }
+    }
+
+    private async Task Next()
+    {
+        next = false;
+        if (gameBase.all >= 10)
+        {
+            ready = false;
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+            return;
+        }
+        PrepareNewGame();
+        UserRoot = 0;
+        UserFullNumber = 0;
+        helpRoot = 0;
+        helpFull = "";
+        showHelp = false;
+        showHelpNext = false;
     }
 
     private void Help()

@@ -36,6 +36,7 @@
             <p style="height:5px"></p>
             <p>Wynik: @gameBase.good / @gameBase.all </p>
             
+          
             <p style="height:50px"></p>
             <button class="backbtn" @onclick="GoBack">Cofnij</button>
         }else
@@ -52,7 +53,11 @@
             <p>@gameBase.message</p>
             <p style="height:5px"></p>
             <p>Wynik: @gameBase.good / @gameBase.all </p>
-            
+            @if (next == true)
+            {
+                <p style="height:10px"></p>
+                <button class="confbtn" @onclick="Next">Następne</button>
+            }
             <p style="height:50px"></p>
             <button class="backbtn" @onclick="GoBack">Cofnij</button>
             </left>
@@ -88,6 +93,11 @@
             <p>@gameBase.message</p>
             <p style="height:5px"></p>
             <p>Wynik: @gameBase.good / @gameBase.all </p>
+            @if (next == true)
+            {
+                <p style="height:10px"></p>
+                <button class="confbtn" @onclick="Next">Następne</button>
+            }
             
             <p style="height:50px"></p>
             <button class="backbtn" @onclick="GoBack">Cofnij</button>
@@ -147,16 +157,23 @@
     protected int hint3=0;
 
     protected bool ShowHint = false;
+    private bool next = false;
 
     protected string userSymb = "";
 
     private async Task Confirm()
     {
+        if(next == true)
+        {
+            return;
+        }
+
         if (type == "from")
         {
             if (userInput1 == excerciseNumber1 / modifier + "" && userInput2 == excerciseNumber2 / modifier + "")
             {
                 await gameBase.GoodAnswer();
+                next = true;
             }
             else
             {
@@ -173,22 +190,8 @@
             if (userInput1 == excerciseNumber1 * modifier + "" && userInput2 == Math.Abs(excerciseNumber2 * modifier) + "" &&  checkSym== true)
             {
                 await gameBase.GoodAnswer();
-                PrepareNewGame();
-                hint1 = 0;
-                hint2 = 0;
-                hint3 = 0;
-                userInput1 = "";
-                userInput2 = "";
-                userSymb = "";
-                ShowHint = false;
+                next = true;
 
-                if (gameBase.all >= 10)
-                {
-                    ready = false;
-                    await gameBase.UpdateUserScore(authenticationStateTask,userProgressService);
-                    this.StateHasChanged();
-                    return;
-                }
             }
             else
             {
@@ -201,6 +204,25 @@
                 await gameBase.WrongAnswer();
             }
         }
+    }
+    private async Task Next()
+    {
+        if (gameBase.all >= 10)
+        {
+            ready = false;
+            await gameBase.UpdateUserScore(authenticationStateTask, userProgressService);
+            return;
+        }
+        PrepareNewGame();
+        userInput1 = "";
+        userInput2 = "";
+        userSymb = "";
+        ShowHint = false;
+        next = false;
+        PrepareNewGame();
+        hint1 = 0;
+        hint2 = 0;
+        hint3 = 0;
     }
 
     private async Task GoodFirst()
